@@ -132,7 +132,7 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bAutoFire, false);
 	C_ADD_VARIABLE(bool, bAutoStop, false);
 	C_ADD_VARIABLE(bool, bAutoWall, false);
-	C_ADD_VARIABLE(float, fHitChance, 95.0f);
+	C_ADD_VARIABLE(float, fHitChance, 80.0f);
 
 #pragma endregion
 };

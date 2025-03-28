@@ -379,7 +379,7 @@ void T::LegitBot()
 		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
 		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
-		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
+		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 90.f);
 		
 		
 	}
