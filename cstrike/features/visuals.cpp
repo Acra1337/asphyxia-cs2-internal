@@ -43,6 +43,7 @@ void VISUALS::OnFrame(const int nStage)
 		if (CCSPlayerController* pLocal = CCSPlayerController::GetLocalPlayerController(); pLocal != nullptr)
 		{
 			OVERLAY::OnFrameStageNotify(pLocal);
+			OVERLAY::ScopeLines();
 		}
 
 		D::SwapDrawData();

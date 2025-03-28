@@ -625,3 +625,42 @@ void OVERLAY::Player(CCSPlayerController* pLocal, CCSPlayerController* pPlayer, 
 	// render all the context
 	context.Render(D::pDrawListActive, vecBox);
 }
+
+
+void F::VISUALS::OVERLAY::ScopeLines()
+{
+	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
+		return;
+
+	if (!SDK::LocalPawn || !SDK::LocalController->IsPawnAlive())
+		return;
+
+	if (C_GET(unsigned int, Vars.nViewRemovals) & VIEW_SCOPE_OVERLAY)
+	{
+
+		CCSPlayer_WeaponServices* WeaponServices = SDK::LocalPawn->GetWeaponServices();
+		if (WeaponServices == nullptr)
+			return;
+
+		C_CSWeaponBaseGun* ActiveWeapon = I::GameResourceService->pGameEntitySystem->Get<C_CSWeaponBaseGun>(WeaponServices->GetActiveWeapon());
+		if (ActiveWeapon == nullptr)
+			return;
+
+		if (ActiveWeapon->GetZoomLevel() == 0)
+			return;
+
+		int32_t WeaponType = ActiveWeapon->GetWeaponVData()->GetWeaponType();
+		if (!WeaponType)
+			return;
+
+		if (WeaponType != WEAPONTYPE_SNIPER_RIFLE)
+			return;
+
+		ImDrawList* pDrawList = D::pDrawListActive;
+
+		const auto display{ ImGui::GetIO().DisplaySize };
+
+		pDrawList->AddLine(ImVec2(0, display.y / 2), ImVec2(display.x, display.y / 2), Color_t(0, 0, 0).GetU32(), 1.0f);
+		pDrawList->AddLine(ImVec2(display.x / 2, 0), ImVec2(display.x / 2, display.y), Color_t(0, 0, 0).GetU32(), 1.0f);
+	}
+}
