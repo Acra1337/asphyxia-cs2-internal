@@ -376,8 +376,10 @@ void T::LegitBot()
 		}
 		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
-		ImGui::BeginDisabled(C_GET(bool, Vars.bLegitbotAlwaysOn));
-		ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
+		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoFire));
+		{
+			ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
+		}
 		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
