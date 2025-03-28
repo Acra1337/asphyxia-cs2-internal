@@ -19,7 +19,65 @@
 #include "../../sdk/utilities/penetration.h"
 #include <chrono>
 #include "../../core/menu.h"
+#include <random>
 
+
+double sqrt3, sqrt5;
+
+void init_constants() {
+	sqrt3 = sqrt(3);
+	sqrt5 = sqrt(5);
+}
+
+struct TwoFloats {
+	float first;
+	float second;
+};
+
+TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, double G_0, double W_0, double M_0, double D_0) {
+	int current_x = start_x;
+	int current_y = start_y;
+	double v_x = 0, v_y = 0, W_x = 0, W_y = 0;
+
+	while (1) {
+		double dist = sqrt(pow(dest_x - start_x, 2) + pow(dest_y - start_y, 2));
+		if (dist < 0.01) {
+			return { dest_x , dest_y };
+			break;
+		}
+
+		double W_mag = fmin(W_0, dist);
+
+		if (dist >= D_0) {
+			W_x = W_x / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
+			W_y = W_y / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
+		}
+		else {
+			W_x /= sqrt3;
+			W_y /= sqrt3;
+			if (M_0 < 3) {
+				M_0 = (3 + (rand() / (double)RAND_MAX) * 3);
+			}
+			else {
+				M_0 /= sqrt5;
+			}
+		}
+
+		v_x += W_x + G_0 * (dest_x - start_x) / dist;
+		v_y += W_y + G_0 * (dest_y - start_y) / dist;
+
+		double v_mag = sqrt(v_x * v_x + v_y * v_y);
+		if (v_mag > M_0) {
+			double v_clip = M_0 / 2 + (rand() / (double)RAND_MAX) * M_0 / 2;
+			v_x = (v_x / v_mag) * v_clip;
+			v_y = (v_y / v_mag) * v_clip;
+		}
+
+		TwoFloats result = { v_x/5, v_y/5 };
+		return result;
+	}
+
+}
 
 class Timer {
 public:
@@ -183,9 +241,12 @@ float delay = 0.400f;
 void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLocalPawn, CCSPlayerController* pLocalController)
 {
 	// Check if the activation key is down
-
+	float flSmoothing = 1.0f;
 	if (!IPT::IsKeyDown(C_GET(unsigned int, Vars.nLegitbotActivationKey)) && !C_GET(bool, Vars.bLegitbotAlwaysOn) || MENU::bMainWindowOpened == 1)
 		return;
+	// Seed the random number generator
+	srand(time(NULL));
+	init_constants();
 	float Damage = 0;
 	// The current best distance
 	float flDistance = INFINITY;
@@ -193,7 +254,10 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	CCSPlayerController* pTarget = nullptr;
 	// Cache'd position
 	Vector_t vecBestPosition = Vector_t();
-
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dis(-0.15f, 0.15f);
+	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 126;
 	UpdateMouseRelease();
@@ -326,7 +390,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (speed > hit_chnce && C_GET(bool, Vars.bAutoStop)) {
 		AutoStop();
 	}
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.4 && abs(static_cast<float>(vNewAngles.y)) < 0.3) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
 		if (speed < hit_chnce) {
 			if (C_GET(bool, Vars.bAutoFire)) {
 				ActionFire();
@@ -334,15 +398,40 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 			}
 		}
 	}
-	// Get the smoothing
-	const float flSmoothing = C_GET(float, Vars.flSmoothing);
-	auto aimPunch =  GetRecoil(pLocalPawn); //get AimPunch angles
-	// Apply smoothing and set angles
-	pViewAngles->x +=  ( vNewAngles.x - aimPunch.x ) / flSmoothing;// minus AimPunch angle to counteract recoil
-	pViewAngles->y +=  ( vNewAngles.y - aimPunch.y ) / flSmoothing;
-	pViewAngles->Normalize();
-	//L_PRINT(LOG_INFO) << MENU::bMainWindowOpened;
-	// Point at them
+
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.5f && abs(static_cast<float>(vNewAngles.y)) < 0.5f && C_GET(bool, Vars.bAutoFire)) {
+		flSmoothing = 1.0f;
+	}
+	else {
+		// Get the smoothing
+		flSmoothing = C_GET(float, Vars.flSmoothing);
+		randomValue = 0;
+
+	}
+
 	
 
+	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
+
+	if (C_GET(bool, Vars.bHumanize) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
+		double G_0 = 8;
+		double W_0 = 30;
+		double M_0 = 15;
+		double D_0 = 1;
+		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) + randomValue))*10, 
+			static_cast<float>(((vNewAngles.y) + randomValue))*10,
+			G_0, W_0, M_0, D_0);
+
+		pViewAngles->x += result_aim.first/ flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil
+		pViewAngles->y += result_aim.second / flSmoothing - aimPunch.y;
+	}
+	else {
+		// Apply smoothing and set angles
+		pViewAngles->x += (vNewAngles.x - aimPunch.x) / flSmoothing + randomValue;// minus AimPunch angle to counteract recoil
+		pViewAngles->y += (vNewAngles.y - aimPunch.y) / flSmoothing + randomValue;
+	}
+	pViewAngles->Normalize();
+	//L_PRINT(LOG_INFO) << MENU::bMainWindowOpened;
+
 }
+

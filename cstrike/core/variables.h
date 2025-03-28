@@ -115,6 +115,7 @@ struct Variables_t
 	C_ADD_VARIABLE(float, flSmoothing, 10.0f);
 	C_ADD_VARIABLE(bool, bLegitbotAlwaysOn, false);
 	C_ADD_VARIABLE(unsigned int, nLegitbotActivationKey, VK_HOME);
+	C_ADD_VARIABLE(bool, bHumanize, false);
 	C_ADD_VARIABLE(bool, bAutoFire, false);
 	C_ADD_VARIABLE(bool, bAutoStop, false);
 	C_ADD_VARIABLE(bool, bAutoWall, false);
