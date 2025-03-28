@@ -375,8 +375,10 @@ void T::LegitBot()
 			ImGui::HotKey(CS_XOR("toggle key"), &C_GET(unsigned int, Vars.nLegitbotActivationKey));
 		}
 		ImGui::EndDisabled();
-		ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
 		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
+		ImGui::BeginDisabled(C_GET(bool, Vars.bLegitbotAlwaysOn));
+		ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
+		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
 		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 90.f);
