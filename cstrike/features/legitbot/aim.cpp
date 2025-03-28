@@ -151,31 +151,61 @@ QAngle_t GetAngularDifference(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlay
 
 	return vNewAngle;
 }
+
+struct Vector {
+	float x, y, z;
+};
+
+// Определение структуры углов
+struct QAngle {
+	float pitch, yaw, roll;
+};
+
+void AngleVectors(const Vector_t& angles, Vector_t* forward)
+{
+	// sry
+	//Assert(s_bMathlibInitialized);
+	//Assert(forward);
+
+	float sp, sy, cp, cy;
+
+	sy = sin(M_DEG2RAD(angles[1]));
+	cy = cos(M_DEG2RAD(angles[1]));
+
+	sp = sin(M_DEG2RAD(angles[0]));
+	cp = cos(M_DEG2RAD(angles[0]));
+
+	forward->x = cp * cy;
+	forward->y = cp * sy;
+	forward->z = -sp;
+}
+
+
 void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	if (SDK::UserCmd->nButtons.nValue & IN_DUCK)
 		return;
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
 		return;
 
-	SDK::BaseCmd->SetBits(BASE_BITS_FORWARDMOVE);
-	SDK::BaseCmd->SetBits(BASE_BITS_LEFTMOVE);
-
-	SDK::BaseCmd->flSideMove = 0.0f;
-	SDK::BaseCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
-
+	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+	float speed = velocity.Length2D();
 	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
 	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
 
-	float flCosRotation = std::cos(flRotation);
-	float flSinRotation = std::sin(flRotation);
+	Vector_t angle;
+	MATH::vec_angles(velocity, &angle);
+	angle.y = SDK::pData->ViewAngle.y - angle.y;
 
-	float flNewForwardMove = (flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation)*0.8 * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = (flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation)*0.8 * SDK::BaseCmd->flSideMove;
+	Vector_t direction;
+	AngleVectors(angle, &direction);
 
-	/*SDK::BaseCmd->flForwardMove = flNewForwardMove*2;
-	SDK::BaseCmd->flSideMove = -flNewSideMove*2;*/
-	pUserCmd->flForwardMove = flNewForwardMove;
-	pUserCmd->flSideMove = -flNewSideMove;
+
+	Vector_t stop = direction * -speed;
+
+
+	pUserCmd->flForwardMove = stop.x;
+	pUserCmd->flSideMove = stop.y;
+	
 }
 
 float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
@@ -246,6 +276,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (!IPT::IsKeyDown(C_GET(unsigned int, Vars.nLegitbotActivationKey)) && !C_GET(bool, Vars.bLegitbotAlwaysOn) || MENU::bMainWindowOpened == 1)
 		return;
 	// Seed the random number generator
+
 	srand(time(NULL));
 	init_constants();
 	float Damage = 0;
@@ -402,7 +433,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.9f && abs(static_cast<float>(vNewAngles.y)) < 0.9f && C_GET(bool, Vars.bAutoFire)) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire)) {
 		flSmoothing = 1.0f;
 	}
 	else {
