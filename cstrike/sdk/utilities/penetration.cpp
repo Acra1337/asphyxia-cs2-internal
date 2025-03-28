@@ -73,14 +73,14 @@ bool AutoWall::FireBullet(Data_t& mData) {
 
 	TraceFilter_t pTraceFilter;
 	I::GameTraceManager->TraceInit(pTraceFilter, SDK::LocalPawn, 0x1C300Bu, 3, 7);
-	I::GameTraceManager->CreateTrace(&pTraceData, mData.vecStartPos, vecEndPosition, pTraceFilter, 4);
+	I::GameTraceManager->CreateTrace(&pTraceData, mData.vecStartPos, vecEndPosition, pTraceFilter, 8);
 
 	HandleBulletPenetrationData_t mHandleBulletData = HandleBulletPenetrationData_t(
 		static_cast<float>(SDK::WeaponBaseVData->GetDamage()),
 		SDK::WeaponBaseVData->GetPenetration(),
 		SDK::WeaponBaseVData->GetRange(),
 		SDK::WeaponBaseVData->GetRangeModifier(),
-		1,//C_GET(int, Vars.iPenetrationCount),
+		C_GET(float, Vars.flMinDamage),
 		false);
 
 	mData.flDamage = static_cast<float>(SDK::WeaponBaseVData->GetDamage());

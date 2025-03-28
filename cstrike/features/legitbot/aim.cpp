@@ -169,13 +169,13 @@ void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	float flCosRotation = std::cos(flRotation);
 	float flSinRotation = std::sin(flRotation);
 
-	float flNewForwardMove = (flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation)*0.7 * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = (flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation)*0.7 * SDK::BaseCmd->flSideMove;
+	float flNewForwardMove = (flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation)*0.8 * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = (flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation)*0.8 * SDK::BaseCmd->flSideMove;
 
 	/*SDK::BaseCmd->flForwardMove = flNewForwardMove*2;
 	SDK::BaseCmd->flSideMove = -flNewSideMove*2;*/
-	pUserCmd->flForwardMove = flNewForwardMove * 2;
-	pUserCmd->flSideMove = -flNewSideMove * 2;
+	pUserCmd->flForwardMove = flNewForwardMove;
+	pUserCmd->flSideMove = -flNewSideMove;
 }
 
 float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)

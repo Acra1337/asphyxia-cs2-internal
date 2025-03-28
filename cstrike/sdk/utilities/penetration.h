@@ -6,6 +6,7 @@
 #include "../../sdk/interfaces/cgameentitysystem.h"
 #include "../../sdk/interfaces/ienginecvar.h"
 #include "../../core/convars.h"
+#include "../../core/variables.h"
 
 namespace AutoWall {
     static struct Data_t {
