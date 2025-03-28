@@ -381,8 +381,12 @@ void T::LegitBot()
 			ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
 		}
 		ImGui::EndDisabled();
-		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
+		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
+		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoWall)); {
+			ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
+		}
+		ImGui::EndDisabled();
 		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 90.f);
 		
 		
