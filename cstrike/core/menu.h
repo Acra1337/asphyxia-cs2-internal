@@ -16,7 +16,12 @@ public:
 	const char* szName;
 	void (*pRenderFunction)();
 };
-
+static constexpr const char* arrViewRemovals[] = {
+	"Flash",
+	"Smoke",
+	"Scope zoom",
+	"Occlusion"
+};
 namespace MENU
 {
 	void RenderMainWindow();

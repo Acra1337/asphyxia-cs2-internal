@@ -87,6 +87,14 @@ namespace H
 	void CS_FASTCALL DrawObject(void* pAnimatableSceneObjectDesc, void* pDx11, CMeshData* arrMeshDraw, int nDataCount, void* pSceneView, void* pSceneLayer, void* pUnk, void* pUnk2);
 	void* IsRelativeMouseMode(void* pThisptr, bool bActive);
 
+
+	void CS_FASTCALL DrawFlashlight(__int64 a1, int a2, __int64* a3, __int64 a4, __m128* a5);
+	void* CS_FASTCALL DrawSmokeArray(void* rcx, void* pSomePointer1, void* pSomePointer2, void* pSomePointer3, void* pSomePointer4, void* pSomePointer5);
+	void* CS_FASTCALL DrawScope(void* rcx, void* unk);
+	//bool CS_FASTCALL DrawGlow(CGlowProperty* glowProperty);
+	//bool CS_FASTCALL DrawLegs(C_CSPlayerPawn* Entity);
+	float CS_FASTCALL DrawFOV(uintptr_t rcx);
+
 	/* @section: managers */
 	inline CBaseHookObject<decltype(&Present)> hkPresent = {};
 	inline CBaseHookObject<decltype(&ResizeBuffers)> hkResizeBuffers = {};
@@ -103,4 +111,12 @@ namespace H
 	inline CBaseHookObject<decltype(&OverrideView)> hkOverrideView = {};
 
 	inline CBaseHookObject<decltype(&DrawObject)> hkDrawObject = {};
+
+	//inline CBaseHookObject<decltype(&DrawRadarEntities)> hkDrawRadarEntities = {};
+	inline CBaseHookObject<decltype(&DrawFlashlight)> hkDrawFlashlight = {};
+	inline CBaseHookObject<decltype(&DrawSmokeArray)> hkDrawSmokeArray = {};
+	//inline CBaseHookObject<decltype(&DrawGlow)> hkDrawGlow = {};
+	//inline CBaseHookObject<decltype(&DrawLegs)> hkDrawLegs = {};
+	inline CBaseHookObject<decltype(&DrawFOV)> hkDrawFOV = {};
+
 }
