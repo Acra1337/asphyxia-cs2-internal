@@ -25,6 +25,7 @@ enum ECommandButtons : std::uint64_t
 	IN_RELOAD = 1 << 13,
 	IN_SPRINT = 1 << 16,
 	IN_JOYAUTOSPRINT = 1 << 17,
+	IN_WALK = (1 << 18),
 	IN_SHOWSCORES = 1ULL << 33,
 	IN_ZOOM = 1ULL << 34,
 	IN_LOOKATWEAPON = 1ULL << 35
@@ -280,6 +281,7 @@ public:
 	std::uint64_t nValueScroll; // 0x18
 };
 static_assert(sizeof(CInButtonState) == 0x20);
+
 
 class CUserCmd
 {

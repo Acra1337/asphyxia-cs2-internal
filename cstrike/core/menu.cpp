@@ -376,6 +376,8 @@ void T::LegitBot()
 		}
 		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
+		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 90.f);
+
 		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoFire));
 		{
 			ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
@@ -387,7 +389,6 @@ void T::LegitBot()
 			ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
 		}
 		ImGui::EndDisabled();
-		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 90.f);
 		
 		
 	}

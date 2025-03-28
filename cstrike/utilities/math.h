@@ -9,7 +9,8 @@
 #include <cstdlib>
 // used: time
 #include <ctime>
-
+#include "../sdk/datatypes/matrix.h"
+#include "../sdk/datatypes/vector.h"
 // convert angle in degrees to radians
 #define M_DEG2RAD(DEGREES) ((DEGREES) * (MATH::_PI / 180.f))
 // convert angle in radians to degrees
@@ -76,6 +77,35 @@ namespace MATH
 	{
 		return (value < minimal) ? minimal : (value > maximal) ? maximal :
 																 value;
+	}
+
+	[[nodiscard]] inline void vec_angles(Vector_t forward, Vector_t* angles)
+	{
+		float tmp, yaw, pitch;
+
+		if (forward.y == 0.f && forward.x == 0.f) {
+			yaw = 0;
+			if (forward.z > 0) {
+				pitch = 270;
+			}
+			else {
+				pitch = 90.f;
+			}
+		}
+		else {
+			yaw = (float)(atan2(forward.y, forward.x) * 180.f / 3.14159265358979323846f);
+			if (yaw < 0) {
+				yaw += 360.f;
+			}
+			tmp = (float)sqrt(forward.x * forward.x + forward.y * forward.y);
+			pitch = (float)(atan2(-forward.z, tmp) * 180.f / 3.14159265358979323846f);
+			if (pitch < 0) {
+				pitch += 360.f;
+			}
+		}
+		angles->x = pitch;
+		angles->y = yaw;
+		angles->z = 0.f;
 	}
 
 	/* @section: exponential */
