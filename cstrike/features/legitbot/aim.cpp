@@ -414,7 +414,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
 
-	if (C_GET(bool, Vars.bHumanize) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
+	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 1.5f && abs(static_cast<float>(vNewAngles.y)) > 1.5f )) {
 		double G_0 = 8;
 		double W_0 = 30;
 		double M_0 = 15;
