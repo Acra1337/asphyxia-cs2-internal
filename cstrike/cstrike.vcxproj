@@ -236,6 +236,7 @@
     <ClCompile Include="..\dependencies\minhook\hook.c" />
     <ClCompile Include="..\dependencies\minhook\trampoline.c" />
     <ClCompile Include="cgameeventmanager.cpp" />
+    <ClCompile Include="core\сlient.cpp" />
     <ClCompile Include="features\legitbot.cpp" />
     <ClCompile Include="features\legitbot\aim.cpp" />
     <ClCompile Include="sdk\utilities\penetration.cpp" />

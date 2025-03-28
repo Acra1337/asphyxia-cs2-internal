@@ -101,6 +101,21 @@ bool H::Setup()
 		return false;
 	L_PRINT(LOG_INFO) << CS_XOR("\"FrameStageNotify\" hook has been created");
 
+	// XREF: FlashbangOverlay & XREF : CsgoForward & XREF : cs_flash_frame_render_target_split_ % d
+	if (!hkDrawFlashlight.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("85 D2 0F 88 ? ? ? ? 55 56 41 55 ")), reinterpret_cast<void*>(&DrawFlashlight)))
+		return false;
+
+	L_PRINT(LOG_INFO) << CS_XOR("\"DrawFlashlight\" hook has been created");
+
+	if (!hkDrawSmokeArray.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 89 54 24 ? 55 41 55 48 8D AC 24")), reinterpret_cast<void*>(&DrawSmokeArray)))
+		return false;
+
+	L_PRINT(LOG_INFO) << CS_XOR("\"DrawArraySmokeVolume\" hook has been created");
+
+	if(!hkDrawFOV.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("40 53 48 83 EC ? 48 8B D9 E8 ? ? ? ? 48 85 C0 74 ? 48 8B C8 48 83 C4")), reinterpret_cast<void*>(&DrawFOV)))
+		return false;
+
+	L_PRINT(LOG_INFO) << CS_XOR("\"DrawFOV\" hook has been created");
 	// in ida it will go in order as
 	// @ida: #STR: ; "game_newmap"
 	// @ida: #STR: ; "mapname"
