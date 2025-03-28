@@ -38,18 +38,8 @@ enum ESelectedRemovals : unsigned int
 	VIEW_NONE = 0U,
 	VIEW_FLASH = 1 << 0,
 	VIEW_SMOKE = 1 << 1,
-	VIEW_LEGS = 1 << 2,
-	VIEW_SKY = 1 << 3,
-	VIEW_FOG = 1 << 4,
-	VIEW_TEAM_INTRO = 1 << 5,
-	VIEW_SCOPE_OVERLAY = 1 << 6,
-	VIEW_SCOPE_ZOOM = 1 << 7,
-	VIEW_WATER_EFFECTS = 1 << 8,
-	VIEW_LIGHTS = 1 << 9,
-	VIEW_SHADOWS = 1 << 10,
-	VIEW_DECALS = 1 << 11,
-	VIEW_PARTICLES = 1 << 12,
-	VIEW_OCCLUSION = 1 << 13,
+	VIEW_SCOPE_ZOOM = 1 << 2,
+	VIEW_SCOPE_OVERLAY = 1 << 3,
 	VIEW_REMOVALS = VIEW_NONE
 };
 

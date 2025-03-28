@@ -446,6 +446,22 @@ void T::Visuals()
 	}
 	ImGui::NextColumn();
 	{
+		static int nCurrentSettingSubTab = 0;
+		ImGui::BeginChild(CS_XOR("visuals.misc"), ImVec2(0, ImGui::GetContentRegionAvail().y / 2.f), true, ImGuiWindowFlags_MenuBar);
+		{
+			if (ImGui::BeginMenuBar())
+			{
+				ImGui::TextUnformatted(CS_XOR("misc"));
+				ImGui::EndMenuBar();
+			}
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, 0));
+
+			ImGui::MultiCombo(CS_XOR("View removals"), &C_GET(unsigned int, Vars.nViewRemovals), arrViewRemovals, CS_ARRAYSIZE(arrViewRemovals));
+			
+			ImGui::PopStyleVar();
+		}
+		ImGui::EndChild();
+		
 	}
 	ImGui::Columns(1);
 }

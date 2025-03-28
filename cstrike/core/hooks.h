@@ -112,11 +112,10 @@ namespace H
 
 	inline CBaseHookObject<decltype(&DrawObject)> hkDrawObject = {};
 
-	//inline CBaseHookObject<decltype(&DrawRadarEntities)> hkDrawRadarEntities = {};
 	inline CBaseHookObject<decltype(&DrawFlashlight)> hkDrawFlashlight = {};
 	inline CBaseHookObject<decltype(&DrawSmokeArray)> hkDrawSmokeArray = {};
-	//inline CBaseHookObject<decltype(&DrawGlow)> hkDrawGlow = {};
-	//inline CBaseHookObject<decltype(&DrawLegs)> hkDrawLegs = {};
+	inline CBaseHookObject<decltype(&DrawScope)> hkDrawScope = {};
+
 	inline CBaseHookObject<decltype(&DrawFOV)> hkDrawFOV = {};
 
 }

@@ -25,6 +25,12 @@ void* CS_FASTCALL H::DrawSmokeArray(void* rcx, void* pSomePointer1, void* pSomeP
 	hkDrawSmokeArray.GetOriginal()(rcx, pSomePointer1, pSomePointer2, pSomePointer3, pSomePointer4, pSomePointer5);
 }
 
+void* CS_FASTCALL H::DrawScope(void* rcx, void* unk) {
+	if (C_GET(unsigned int, Vars.nViewRemovals) & VIEW_SCOPE_OVERLAY)
+		return nullptr;
+
+	return hkDrawScope.GetOriginal()(rcx, unk);
+}
 
 
 float CS_FASTCALL H::DrawFOV(uintptr_t rcx) {

@@ -116,6 +116,12 @@ bool H::Setup()
 		return false;
 
 	L_PRINT(LOG_INFO) << CS_XOR("\"DrawFOV\" hook has been created");
+
+	if (!hkDrawScope.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("4C 8B DC 53 56 57 48 83 EC")), reinterpret_cast<void*>(&DrawScope)))
+		return false;
+
+	L_PRINT(LOG_INFO) << CS_XOR("\"DrawScope\" hook has been created");
+
 	// in ida it will go in order as
 	// @ida: #STR: ; "game_newmap"
 	// @ida: #STR: ; "mapname"

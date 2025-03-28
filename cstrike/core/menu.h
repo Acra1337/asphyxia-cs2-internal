@@ -20,7 +20,7 @@ static constexpr const char* arrViewRemovals[] = {
 	"Flash",
 	"Smoke",
 	"Scope zoom",
-	"Occlusion"
+	"Scope overlay"
 };
 namespace MENU
 {

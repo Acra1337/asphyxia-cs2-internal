@@ -165,4 +165,5 @@ namespace F::VISUALS::OVERLAY
 	/* @section: main */
 	// draw box, bars, text infos, etc at player position
 	void Player(CCSPlayerController* pLocal, CCSPlayerController* pPlayer, const float flDistance);
+	void ScopeLines();
 }
