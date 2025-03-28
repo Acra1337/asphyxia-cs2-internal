@@ -151,10 +151,9 @@ QAngle_t GetAngularDifference(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlay
 
 	return vNewAngle;
 }
-void AutoStop() {
+void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	if (SDK::UserCmd->nButtons.nValue & IN_DUCK)
 		return;
-
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
 		return;
 
@@ -170,11 +169,13 @@ void AutoStop() {
 	float flCosRotation = std::cos(flRotation);
 	float flSinRotation = std::sin(flRotation);
 
-	float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
+	float flNewForwardMove = (flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation)*0.7 * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = (flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation)*0.7 * SDK::BaseCmd->flSideMove;
 
-	SDK::BaseCmd->flForwardMove = flNewForwardMove*0.6;
-	SDK::BaseCmd->flSideMove = -flNewSideMove*0.6;
+	/*SDK::BaseCmd->flForwardMove = flNewForwardMove*2;
+	SDK::BaseCmd->flSideMove = -flNewSideMove*2;*/
+	pUserCmd->flForwardMove = flNewForwardMove * 2;
+	pUserCmd->flSideMove = -flNewSideMove * 2;
 }
 
 float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
@@ -343,6 +344,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 			continue;
 		if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
 			continue;
+		Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 		
 		if (C_GET(bool, Vars.bAutoWall)) {
 			AutoWall::mData.iHitGroup = iBone;
@@ -381,15 +383,16 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	/*if (speed > 180)
 		return;*/
 	// Point at them
+	float hit_chnce = 200 - 2 * C_GET(float, Vars.fHitChance);
+	if (speed > 0 && C_GET(bool, Vars.bAutoStop)) {
+		AutoStop(pUserCmd);
+	}
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
 
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
 	vNewAngles.x = vNewAngles.x - 0.2f;
-	float hit_chnce = 200 - 2 * C_GET(float, Vars.fHitChance);
-	if (speed > hit_chnce && C_GET(bool, Vars.bAutoStop)) {
-		AutoStop();
-	}
+
 	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
 		if (speed < hit_chnce) {
 			if (C_GET(bool, Vars.bAutoFire)) {
@@ -399,7 +402,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.5f && abs(static_cast<float>(vNewAngles.y)) < 0.5f && C_GET(bool, Vars.bAutoFire)) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.8f && abs(static_cast<float>(vNewAngles.y)) < 0.8f && C_GET(bool, Vars.bAutoFire)) {
 		flSmoothing = 1.0f;
 	}
 	else {
@@ -408,8 +411,6 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		randomValue = 0;
 
 	}
-
-	
 
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
 
