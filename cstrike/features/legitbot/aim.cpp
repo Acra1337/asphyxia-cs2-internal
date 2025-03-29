@@ -4,6 +4,7 @@
 #include "../../sdk/entity.h"
 #include "../../sdk/interfaces/cgameentitysystem.h"
 #include "../../sdk/interfaces/iengineclient.h"
+#include "../../sdk/interfaces/ccsgoinput.h"
 // used: cusercmd
 #include "../../sdk/datatypes/usercmd.h"
 
@@ -180,14 +181,23 @@ void AngleVectors(const Vector_t& angles, Vector_t* forward)
 	forward->z = -sp;
 }
 
-
+unsigned int iTickCount = 0;
 void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	if (SDK::UserCmd->nButtons.nValue & IN_DUCK)
 		return;
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
 		return;
+	;
+	pUserCmd->flSideMove = 0.0f;
+	pUserCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
 
-	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+	//iTickCount++;
+	//I::Input->nAttackStartHistoryIndex1 = 0;
+	//I::Input->pInputMessage.iPlayerTickCount = iTickCount;
+	//pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
+	//pUserCmd->SetBits(BASE_BITS_LEFTMOVE);
+
+	/*Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 	float speed = velocity.Length2D();
 	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
 	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
@@ -199,12 +209,21 @@ void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	Vector_t direction;
 	AngleVectors(angle, &direction);
 
+	Vector_t stop = direction * -speed;*/
 
-	Vector_t stop = direction * -speed;
+	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
+	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
+
+	float flCosRotation = std::cos(flRotation);
+	float flSinRotation = std::sin(flRotation);
+
+	float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 
 
-	pUserCmd->flForwardMove = stop.x;
-	pUserCmd->flSideMove = stop.y;
+	pUserCmd->flForwardMove = 0;
+	pUserCmd->flSideMove = flNewSideMove;
+
 	
 }
 
@@ -271,6 +290,7 @@ float delay = 0.400f;
 
 void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLocalPawn, CCSPlayerController* pLocalController)
 {
+	
 	// Check if the activation key is down
 	float flSmoothing = 1.0f;
 	if (!IPT::IsKeyDown(C_GET(unsigned int, Vars.nLegitbotActivationKey)) && !C_GET(bool, Vars.bLegitbotAlwaysOn) || MENU::bMainWindowOpened == 1)
@@ -293,6 +313,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Entity loop
 	const int iHighestIndex = 126;
 	UpdateMouseRelease();
+	C_CSPlayerPawn* pPawn = nullptr;
 	for (int nIndex = 1; nIndex <= iHighestIndex; nIndex++)
 	{
 		if (myTimer.IsBlocked(delay))
@@ -396,7 +417,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		if (!(trace.m_pHitEntity == pPawn || Damage > 0))
 			continue;
 
-
+		
 		// Get the distance/weight of the move
 		
 		// Better move found, override.
@@ -415,7 +436,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		return;*/
 	// Point at them
 	float hit_chnce = 200 - 2 * C_GET(float, Vars.fHitChance);
-	if (speed > 0 && C_GET(bool, Vars.bAutoStop)) {
+	if (C_GET(bool, Vars.bAutoStop)) {
 		AutoStop(pUserCmd);
 	}
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!

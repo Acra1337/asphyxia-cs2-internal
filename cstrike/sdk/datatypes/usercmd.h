@@ -208,6 +208,8 @@ public:
 
 static_assert(sizeof(CSubtickMoveStep) == 0x30);
 
+
+
 class CBaseUserCmdPB : public CBasePB
 {
 public:
@@ -229,7 +231,8 @@ public:
 	std::int32_t nCmdFlags;
 	std::uint32_t nPawnEntityHandle;
 
-	CSubtickMoveStep* add_subtick_move()
+
+	/*CSubtickMoveStep* add_subtick_move()
 	{
 		using fn_add_subtick_move_step = CSubtickMoveStep* (__fastcall*)(void*);
 		static fn_add_subtick_move_step fn_create_new_subtick_move_step = reinterpret_cast<fn_add_subtick_move_step>(MEM::GetAbsoluteAddress(MEM::FindPattern(CLIENT_DLL, "E8 ? ? ? ? 48 8B D0 48 8D 4F 18 E8 ? ? ? ? 48 8B D0"), 0x1));
@@ -241,15 +244,17 @@ public:
 		subtickMovesField.add(subtick);
 
 		return subtick;
-	}
+	}*/
+
+	CSubtickMoveStep* CreateSubtickStep();
+	CSubtickMoveStep* CreateSubtick();
 
 	int CalculateCmdCRCSize()
 	{
 		return MEM::CallVFunc<int, 7U>(this);
 	}
-};
+};static_assert(sizeof(CBaseUserCmdPB) == 0x80);
 
-static_assert(sizeof(CBaseUserCmdPB) == 0x80);
 
 class CCSGOUserCmdPB
 {

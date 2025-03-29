@@ -466,5 +466,7 @@
     <ClCompile Include="cgameeventmanager.cpp">
       <Filter>sdk\interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="core\сlient.cpp" />
+    <ClCompile Include="sdk\datatypes\usercmd.cpp" />
   </ItemGroup>
 </Project>
