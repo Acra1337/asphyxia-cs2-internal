@@ -197,10 +197,10 @@ void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	//pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
 	//pUserCmd->SetBits(BASE_BITS_LEFTMOVE);
 
-	/*Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 	float speed = velocity.Length2D();
-	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
-	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
+	float flYaw2 = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
+	//float flRotation2 = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw2);
 
 	Vector_t angle;
 	MATH::vec_angles(velocity, &angle);
@@ -209,7 +209,7 @@ void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	Vector_t direction;
 	AngleVectors(angle, &direction);
 
-	Vector_t stop = direction * -speed;*/
+	Vector_t stop = direction * -speed;
 
 	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
 	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
@@ -221,7 +221,7 @@ void AutoStop(CBaseUserCmdPB* pUserCmd) {
 	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 
 
-	pUserCmd->flForwardMove = 0;
+	pUserCmd->flForwardMove = stop.x;
 	pUserCmd->flSideMove = flNewSideMove;
 
 	
