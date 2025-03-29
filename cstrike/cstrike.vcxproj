@@ -239,6 +239,7 @@
     <ClCompile Include="core\сlient.cpp" />
     <ClCompile Include="features\legitbot.cpp" />
     <ClCompile Include="features\legitbot\aim.cpp" />
+    <ClCompile Include="sdk\datatypes\usercmd.cpp" />
     <ClCompile Include="sdk\utilities\penetration.cpp" />
     <ClCompile Include="sdk\interfaces\cgametracemanager.cpp" />
     <ClCompile Include="core.cpp" />

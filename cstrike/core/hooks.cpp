@@ -89,7 +89,7 @@ bool H::Setup()
 
 	// For now, we'll use the pattern
 	// Credit: https://www.unknowncheats.me/forum/4265695-post6331.html
-	if (!hkCreateMove.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 8B C4 4C 89 40 18 48 89 48 08 55 53 57")), reinterpret_cast<void*>(&CreateMove)))
+	if (!hkCreateMove.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 8B C4 4C 89 40 ? 48 89 48 ? 55 53 57")), reinterpret_cast<void*>(&CreateMove)))
 		return false;
 	L_PRINT(LOG_INFO) << CS_XOR("\"CreateMove\" hook has been created");
 
@@ -231,8 +231,9 @@ ViewMatrix_t* CS_FASTCALL H::GetMatrixForView(CRenderGameSystem* pRenderGameSyst
 
 bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 {
-	const auto oCreateMove = hkCreateMove.GetOriginal();
-	const bool bResult = oCreateMove(pInput, nSlot, UserCmd);
+
+	const bool bResult = hkCreateMove.GetOriginal()(pInput, nSlot, UserCmd);
+
 
 	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
 		return bResult;
