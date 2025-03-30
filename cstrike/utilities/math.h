@@ -61,6 +61,12 @@ namespace MATH
 	{
 		return (right < left) ? right : left;
 	}
+	[[nodiscard]] CS_INLINE void SinCos(float rad, float* sine, float* cosine) {
+		*sine = sinf(rad);
+		*cosine = cosf(rad);
+	}
+
+	void AngleVectors(const QAngle_t& angles, Vector_t* forward, Vector_t* right, Vector_t* up);
 
 	/// alternative of 'std::max'
 	/// @returns : maximal value of the given comparable values

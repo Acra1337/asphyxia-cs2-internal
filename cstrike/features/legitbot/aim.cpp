@@ -22,8 +22,6 @@
 #include "../../core/menu.h"
 #include <random>
 #include <cmath>
-#include <numbers> // Для std::numbers::pi
-
 
 double sqrt3, sqrt5;
 
@@ -36,6 +34,15 @@ struct TwoFloats {
 	float first;
 	float second;
 };
+
+float Length(const Vector_t& v) {
+	return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+// Функция для вычисления расстояния между двумя точками
+float GetDistance(const Vector_t& pos1, const Vector_t& pos2) {
+	Vector_t delta = static_cast<Vector_t>(pos1) - static_cast<Vector_t>(pos2);
+	return Length(delta);
+}
 
 TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, double G_0, double W_0, double M_0, double D_0) {
 	int current_x = start_x;
@@ -277,6 +284,26 @@ void UpdateMouseRelease()
 	}
 }
 
+
+
+int CalculateAutisticHitchance() {
+
+	float flInaccuarcy = 0;
+	//float flSpread = 0;
+	if (C_CSWeaponBase* pActiveWeapon = SDK::LocalPawn->GetActiveWeapon()) {
+		pActiveWeapon->UpdateAccuracyPenality();
+
+		flInaccuarcy = pActiveWeapon->GetInaccuracy();
+		//flSpread = pActiveWeapon->GetSpread();
+
+	}	
+
+	double scale = (100 - 0) / (0.008 - 0.1);
+	double autisticHs = 0 + (flInaccuarcy - 0.1) * scale;
+	if (autisticHs < 0) autisticHs = 0;
+	return autisticHs;
+}
+
 void ActionFire() {
 
 	/*SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
@@ -288,7 +315,6 @@ void ActionFire() {
 }
 
 Timer myTimer;
-float delay = 0.400f; 
 
 void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLocalPawn, CCSPlayerController* pLocalController)
 {
@@ -316,10 +342,26 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	const int iHighestIndex = 126;
 	UpdateMouseRelease();
 	C_CSPlayerPawn* pPawn = nullptr;
+	C_CSPlayerPawn* pTargetPawn = nullptr;
+
+
+	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
+		return;
+	if (SDK::pData->WeaponType == WEAPONTYPE_C4)
+		return;
+	if (SDK::pData->WeaponType == WEAPONTYPE_GRENADE)
+		return;
+	if (SDK::pData->WeaponType == WEAPONTYPE_TASER)
+		return;
+	if (!SDK::pData->CanShoot)
+		return;
+	if (SDK::pData->CanScope)
+		return;
+
 	for (int nIndex = 1; nIndex <= iHighestIndex; nIndex++)
 	{
-		if (myTimer.IsBlocked(delay))
-			continue;
+		/*if (myTimer.IsBlocked(delay))
+			continue;*/
 
 		// Get the entity
 		C_BaseEntity* pEntity = I::GameResourceService->pGameEntitySystem->Get(nIndex);
@@ -392,7 +434,6 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		// @note: would recommend checking for nullptrs
 		I::GameTraceManager->TraceShape(&ray, pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6), &filter, &trace);
 		// check if the hit entity is the one we wanted to check and if the trace end point is visible
-		
 		float flCurrentDistance = GetAngularDistance(pUserCmd, vecPos, pLocalPawn);
 		if (flCurrentDistance > C_GET(float, Vars.flAimRange))// Skip if this move out of aim range
 			continue;
@@ -426,15 +467,16 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		pTarget = pPlayer;
 		flDistance = flCurrentDistance;
 		vecBestPosition = vecPos;
+
+		pTargetPawn = pPawn;
+
+
 	}
 
 	// Check if a target was found
 	if (pTarget == nullptr)
 		return;
 
-
-	//L_PRINT(LOG_INFO) << "Damage: " << Damage;
-	//L_PRINT(LOG_INFO) << "pass: " << (Damage > 0 && !(Damage >= VarminDamage));
 
 
 	/*else if (Damage >= VarminDamage/2) {
@@ -443,12 +485,13 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}*/
 	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
-	float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
+
+	float hitch_val = CalculateAutisticHitchance();
 	/*if (speed > 180)
 		return;*/
 	// Point at them
 	float VarminDamage = C_GET(float, Vars.flMinDamage);
-	float hit_chnce = 200 - 2 * C_GET(float, Vars.fHitChance);
+	float hit_chnce = C_GET(float, Vars.fHitChance);
 	if (C_GET(bool, Vars.bAutoWall) && Damage < VarminDamage)
 		return;
 	if (C_GET(bool, Vars.bAutoStop)) {
@@ -461,17 +504,25 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
 	vNewAngles.x = vNewAngles.x - 0.2f;
+	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);
+	CCSPlayer_WeaponServices* WeaponServices = SDK::LocalPawn->GetWeaponServices();
+	if (WeaponServices == nullptr)
+		return;
+
+	/*if (ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn) < C_GET(float, Vars.fHitChance))
+		return;*/
 
 	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
-		if (speed < hit_chnce) {
+		if (hitch_val >= hit_chnce) {
 			if (C_GET(bool, Vars.bAutoFire)) {
 				ActionFire();
 				myTimer.Trigger();
+				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
 			}
 		}
 	}
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && speed-10 < hit_chnce) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
 		flSmoothing = 1.0f;
 	}
 	else {

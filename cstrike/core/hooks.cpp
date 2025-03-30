@@ -271,6 +271,9 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	if (pWeaponBaseVData == nullptr)
 		return bResult;
 
+	C_AttributeContainer* pAttributeManager = pWeaponBase->GetAttributeManager();
+	if (pAttributeManager == nullptr)
+		return bResult;
 
 	F::OnCreateMove(SDK::UserCmd, pBaseCmd, SDK::LocalController);
 
@@ -279,6 +282,14 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	SDK::LocalController = pLocalController;
 	SDK::LocalPawn = pLocalPawn;
 	SDK::WeaponBaseVData = pWeaponBaseVData;
+	SDK::WeaponBase = pWeaponBase;
+
+	SDK::pData->ServerTime = TICKS_TO_TIME(pLocalController->GetTickBase());
+
+	SDK::pData->WeaponType = pWeaponBaseVData->GetWeaponType();
+	SDK::pData->CanShoot = pLocalPawn->CanAttack(SDK::pData->ServerTime) && pWeaponBaseGun->CanPrimaryAttack(SDK::pData->WeaponType, SDK::pData->ServerTime);
+	SDK::pData->CanScope = !pLocalPawn->IsScoped() && !(UserCmd->nButtons.nValue & IN_ZOOM) && !SDK::pData->NoSpread && (pLocalPawn->GetFlags() & FL_ONGROUND) && (SDK::pData->WeaponType == WEAPONTYPE_SNIPER_RIFLE);
+
 	// TODO : We need to fix CRC saving
 	// 
 	// There seems to be an issue within CBasePB and the classes that derive it.
