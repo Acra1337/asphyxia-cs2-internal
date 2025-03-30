@@ -21,6 +21,8 @@
 #include <chrono>
 #include "../../core/menu.h"
 #include <random>
+#include <cmath>
+#include <numbers> // Для std::numbers::pi
 
 
 double sqrt3, sqrt5;
@@ -182,49 +184,49 @@ void AngleVectors(const Vector_t& angles, Vector_t* forward)
 }
 
 unsigned int iTickCount = 0;
-void AutoStop(CBaseUserCmdPB* pUserCmd) {
+
+inline double DegToRad(double degrees) {
+	return degrees * (3.14159265 / 180.0);
+}
+void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	if (SDK::UserCmd->nButtons.nValue & IN_DUCK)
 		return;
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
 		return;
 	;
-	pUserCmd->flSideMove = 0.0f;
-	pUserCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
-
-	//iTickCount++;
+	//pUserCmd->flSideMove = 0.0f;
+	//pUserCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
+	float multipler = 0;
+	iTickCount++;
 	//I::Input->nAttackStartHistoryIndex1 = 0;
 	//I::Input->pInputMessage.iPlayerTickCount = iTickCount;
 	//pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
 	//pUserCmd->SetBits(BASE_BITS_LEFTMOVE);
-
-	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
-	float speed = velocity.Length2D();
-	float flYaw2 = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
-	//float flRotation2 = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw2);
-
-	Vector_t angle;
-	MATH::vec_angles(velocity, &angle);
-	angle.y = SDK::pData->ViewAngle.y - angle.y;
-
-	Vector_t direction;
-	AngleVectors(angle, &direction);
-
-	Vector_t stop = direction * -speed;
-
-	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
+	/*float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
 	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
 
 	float flCosRotation = std::cos(flRotation);
-	float flSinRotation = std::sin(flRotation);
+	float flSinRotation = std::sin(flRotation);*/
 
-	float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
+	if (type == 1 ){
+		float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
+		float flRotation = M_DEG2RAD(pUserCmd->pViewAngles->angValue.y - flYaw);
 
+		float flCosRotation = std::cos(flRotation);
+		float flSinRotation = std::sin(flRotation);
 
-	pUserCmd->flForwardMove = stop.x;
-	pUserCmd->flSideMove = flNewSideMove;
+		/*float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
+		float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;*/
+		
+		pUserCmd->flForwardMove = 0.0f;
+		pUserCmd->flSideMove = -flSinRotation;
+	}
+	else if (type == 0 && iTickCount%2==0) {
+		pUserCmd->flForwardMove = 0;
+		pUserCmd->flSideMove = pUserCmd->flSideMove /2;
+		//L_PRINT(LOG_INFO) << "early ";
+	}
 
-	
 }
 
 float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
@@ -413,10 +415,10 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 		//if (trace.m_pHitEntity != pPawn || (!trace.IsVisible() || static_cast<int>(Damage < 0))// if invisible, skip this entity
 		//	continue;
-
-		if (!(trace.m_pHitEntity == pPawn || Damage > 0))
+		float VarminDamage = C_GET(float, Vars.flMinDamage);
+	
+		if (!(trace.m_pHitEntity == pPawn || Damage >= VarminDamage))
 			continue;
-
 		
 		// Get the distance/weight of the move
 		
@@ -430,15 +432,30 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (pTarget == nullptr)
 		return;
 
+
+	//L_PRINT(LOG_INFO) << "Damage: " << Damage;
+	//L_PRINT(LOG_INFO) << "pass: " << (Damage > 0 && !(Damage >= VarminDamage));
+
+
+	/*else if (Damage >= VarminDamage/2) {
+		if (C_GET(bool, Vars.bAutoStop)) {
+			AutoStop(pUserCmd, 0);
+		}
+	}*/
 	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 	float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
 	/*if (speed > 180)
 		return;*/
 	// Point at them
+	float VarminDamage = C_GET(float, Vars.flMinDamage);
 	float hit_chnce = 200 - 2 * C_GET(float, Vars.fHitChance);
+	if (C_GET(bool, Vars.bAutoWall) && Damage < VarminDamage)
+		return;
 	if (C_GET(bool, Vars.bAutoStop)) {
-		AutoStop(pUserCmd);
+		AutoStop(pUserCmd, 1);
 	}
+	
+
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
 
 	// Find the change in angles
@@ -454,7 +471,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire)) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && speed-10 < hit_chnce) {
 		flSmoothing = 1.0f;
 	}
 	else {

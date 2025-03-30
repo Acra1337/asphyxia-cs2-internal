@@ -73,14 +73,14 @@ bool AutoWall::FireBullet(Data_t& mData) {
 
 	TraceFilter_t pTraceFilter;
 	I::GameTraceManager->TraceInit(pTraceFilter, SDK::LocalPawn, 0x1C300Bu, 3, 7);
-	I::GameTraceManager->CreateTrace(&pTraceData, mData.vecStartPos, vecEndPosition, pTraceFilter, 8);
+	I::GameTraceManager->CreateTrace(&pTraceData, mData.vecStartPos, vecEndPosition, pTraceFilter, 30);
 
 	HandleBulletPenetrationData_t mHandleBulletData = HandleBulletPenetrationData_t(
 		static_cast<float>(SDK::WeaponBaseVData->GetDamage()),
 		SDK::WeaponBaseVData->GetPenetration(),
 		SDK::WeaponBaseVData->GetRange(),
 		SDK::WeaponBaseVData->GetRangeModifier(),
-		C_GET(float, Vars.flMinDamage),
+		30,
 		false);
 
 	mData.flDamage = static_cast<float>(SDK::WeaponBaseVData->GetDamage());
@@ -104,6 +104,7 @@ bool AutoWall::FireBullet(Data_t& mData) {
 		if (pGameTrace.flFraction == 1.0f)
 			break;
 		flTraceLength += pGameTrace.flFraction * flMaxRange;
+		//L_PRINT(LOG_INFO) << "SDK::WeaponBaseVData->GetPenetration() "<< SDK::WeaponBaseVData->GetPenetration();
 		//mData.flDamage *= std::powf(SDK::WeaponBaseVData->GetRangeModifier(), flTraceLength / 500.f);	/need fix
 
 		/*if (flTraceLength > 3000.f)	/need fix
