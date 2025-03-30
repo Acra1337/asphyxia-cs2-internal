@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // @test: using interfaces in the header | not critical but could blow up someday with thousands of errors or affect to compilation time etc
 // used: cgameentitysystem, ischemasystem
@@ -24,6 +24,9 @@
 #include "const.h"
 // used: entity vdata
 #include "vdata.h"
+#include <iomanip> // Add this include
+
+
 
 using GameTime_t = std::float_t;
 using GameTick_t = std::int32_t;
@@ -71,7 +74,14 @@ public:
 	{
 		return MEM::CallVFunc<void, 38U>(this, pReturn);
 	}
+	bool FindClass(const char* szClassName) {
+		static SchemaClassInfoData_t* pDeclaredClass = nullptr;
+		I::SchemaSystem->FindTypeScopeForModule(CS_XOR("client.dll"))->FindDeclaredClass(&pDeclaredClass, szClassName);
+		if (!pDeclaredClass)
+			return false;
 
+		return (pDeclaredClass->InheritsFrom(pDeclaredClass));
+	}
 	[[nodiscard]] CBaseHandle GetRefEHandle()
 	{
 		CEntityIdentity* pIdentity = GetIdentity();
@@ -272,6 +282,10 @@ public:
 	SCHEMA_ADD_FIELD(int, GetShotsFired, "C_CSPlayerPawn->m_iShotsFired");
 	SCHEMA_ADD_FIELD(std::int32_t, GetArmorValue, "C_CSPlayerPawn->m_ArmorValue");
 	SCHEMA_ADD_FIELD(QAngle_t, GetAimPuchAngle, "C_CSPlayerPawn->m_aimPunchAngle");
+
+	[[nodiscard]] bool IsPlayer() {
+		return FindClass(CS_XOR("C_CSPlayerPawn"));
+	}
 };
 
 class CBasePlayerController : public C_BaseModelEntity
@@ -400,6 +414,47 @@ public:
 
 	SCHEMA_ADD_FIELD(bool, IsInReload, "C_CSWeaponBase->m_bInReload");
 
+	float GetInaccuracy() {
+		using GetInaccuracy_t = float(__fastcall*)(void*);
+
+		static auto fnGetInaccuracy = reinterpret_cast<GetInaccuracy_t>(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 89 5C 24 ?? 55 56 57 48 81 EC ?? ?? ?? ?? 44 0F 29 84 24")));
+		return fnGetInaccuracy(this);
+	}
+
+	float GetSpread() {
+		using GetSpread_t = float(__fastcall*)(void*);
+
+		static auto fnGetSpread = reinterpret_cast<GetSpread_t>(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 83 EC ? 48 63 91")));
+		return fnGetSpread(this);
+	}
+
+	void UpdateAccuracyPenality() {
+		//L_PRINT(LOG_INFO) << "upd entry1";
+
+		using UpdateAccuracyPenality_t = void(__fastcall*)(void*);
+		//L_PRINT(LOG_INFO) << "upd entry2";
+
+		// Получаем паттерн один раз
+		static auto patternResult = MEM::FindPattern2(CLIENT_DLL, CS_XOR("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 E8 ? ? ? ? 48 8B D8 48 85 C0 0F 84 ? ? ? ? 44 0F 29 44 24"));
+		if (!patternResult.get()) {
+			L_PRINT(LOG_ERROR) << "Pattern not found!";
+			return;
+		}
+
+		static auto fnUpdateAccuracyPenality = reinterpret_cast<UpdateAccuracyPenality_t>(patternResult.get());
+		//L_PRINT(LOG_INFO) << "fnUpdateAccuracyPenality address: " << std::hex << fnUpdateAccuracyPenality;
+		//L_PRINT(LOG_INFO) << "this pointer: " << std::hex << this;
+
+		// Проверяем валидность указателя на функцию (IsBadCodePtr используется редко, но может помочь)
+		if (IsBadCodePtr(reinterpret_cast<FARPROC>(fnUpdateAccuracyPenality))) {
+			L_PRINT(LOG_ERROR) << "Bad function pointer!";
+			return;
+		}
+
+		//L_PRINT(LOG_INFO) << "Before calling fnUpdateAccuracyPenality";
+		fnUpdateAccuracyPenality(this);
+		//L_PRINT(LOG_INFO) << "upd pass";
+	}
 	CCSWeaponBaseVData* GetWeaponVData()
 	{
 		return static_cast<CCSWeaponBaseVData*>(GetVData());

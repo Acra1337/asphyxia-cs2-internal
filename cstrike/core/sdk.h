@@ -6,6 +6,7 @@
 #include "../sdk/datatypes/color.h"
 // used: cmd
 #include "../sdk/datatypes/usercmd.h"
+#include "../sdk/entity.h"
 
 #pragma region sdk_definitions
 // @source: master/public/worldsize.h
@@ -21,7 +22,7 @@
 class CCSPlayerController;
 class C_CSPlayerPawn;
 class CCSWeaponBaseVData;
-
+class C_CSWeaponBase;
 
 class CData {
 public:
@@ -49,6 +50,7 @@ namespace SDK
 	inline C_CSPlayerPawn* LocalPawn = nullptr;
 	inline CUserCmd* UserCmd = nullptr;
 	inline CBaseUserCmdPB* BaseCmd = nullptr;
+	inline C_CSWeaponBase* WeaponBase = nullptr;
 	inline CCSWeaponBaseVData* WeaponBaseVData = nullptr;
 
 
