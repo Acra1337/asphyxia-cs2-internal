@@ -39,6 +39,7 @@
 	return { flPitch, flYaw, 0.0f };
 }
 
+
 [[nodiscard]] Matrix3x4_t Vector_t::ToMatrix() const
 {
 	Vector_t vecRight = {}, vecUp = {};
