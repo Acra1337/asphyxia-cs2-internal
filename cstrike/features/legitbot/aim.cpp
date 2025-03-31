@@ -128,7 +128,8 @@ void F::LEGITBOT::AIM::OnMove(CUserCmd* pCmd, CBaseUserCmdPB* pBaseCmd, CCSPlaye
 	AimAssist(pBaseCmd, pLocalPawn, pLocalController);
 }
 
-QAngle_t GetAimPunch(C_CSPlayerPawn* pLocalPawn) {
+QAngle_t GetRecoil(C_CSPlayerPawn* pLocalPawn) {
+
 	using GetAimPunch_t = float(__fastcall*)(void*, Vector_t*, float, bool);
 	static GetAimPunch_t GetAimPunch = reinterpret_cast<GetAimPunch_t>(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B F2 0F 29 74 24 ? 48 8B D1")));
 
@@ -138,12 +139,7 @@ QAngle_t GetAimPunch(C_CSPlayerPawn* pLocalPawn) {
 	return QAngle_t(AimPunchAngle.x, AimPunchAngle.y, AimPunchAngle.z);
 }
 
-QAngle_t GetRecoil(C_CSPlayerPawn* pLocalPawn) {
-	QAngle_t AimPunchAngle;
 
-
-	return GetAimPunch(pLocalPawn);
-}
 QAngle_t GetAngularDifference(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
 {
 	// The current position
@@ -353,7 +349,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		return;
 	if (SDK::pData->WeaponType == WEAPONTYPE_TASER)
 		return;
-	if (!SDK::pData->CanShoot)
+	if (!SDK::pData->CanShoot && C_GET(bool, Vars.bAutoFire))
 		return;
 	if (SDK::pData->CanScope)
 		return;
@@ -503,7 +499,13 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
-	vNewAngles.x = vNewAngles.x - 0.2f;
+	if (C_GET(bool, Vars.bAutoFire)) {
+		vNewAngles.x = vNewAngles.x - 0.2f;
+	}
+	else {
+		vNewAngles.x = vNewAngles.x + 2.f;
+	}
+	
 	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);
 	CCSPlayer_WeaponServices* WeaponServices = SDK::LocalPawn->GetWeaponServices();
 	if (WeaponServices == nullptr)
@@ -533,7 +535,6 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	}
 
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
-
 	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
 		double G_0 = 8;
 		double W_0 = 30;
@@ -552,7 +553,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		pViewAngles->y += (vNewAngles.y - aimPunch.y) / flSmoothing + randomValue;
 	}
 	pViewAngles->Normalize();
-	//L_PRINT(LOG_INFO) << MENU::bMainWindowOpened;
+	//L_PRINT(LOG_INFO) << "aimPunch.y" << aimPunch.y;
 
 }
 
