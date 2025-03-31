@@ -335,11 +335,12 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	std::uniform_real_distribution<float> dis(-0.15f, 0.15f);
 	float randomValue = dis(gen);
 	// Entity loop
-	const int iHighestIndex = 126;
+	const int iHighestIndex = 32;//126
 	UpdateMouseRelease();
 	C_CSPlayerPawn* pPawn = nullptr;
 	C_CSPlayerPawn* pTargetPawn = nullptr;
-
+	float flBestDamage = -1;
+	bool isPawned = false;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -433,9 +434,9 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		float flCurrentDistance = GetAngularDistance(pUserCmd, vecPos, pLocalPawn);
 		if (flCurrentDistance > C_GET(float, Vars.flAimRange))// Skip if this move out of aim range
 			continue;
-		if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
-			continue;
-		Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
+		//	continue;
+		//Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 		
 		if (C_GET(bool, Vars.bAutoWall)) {
 			AutoWall::mData.iHitGroup = iBone;
@@ -450,29 +451,28 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		else {
 			Damage = 0;
 		}
-		//if (trace.m_pHitEntity != pPawn || (!trace.IsVisible() || static_cast<int>(Damage < 0))// if invisible, skip this entity
-		//	continue;
+
 		float VarminDamage = C_GET(float, Vars.flMinDamage);
-	
-		if (!(trace.m_pHitEntity == pPawn || Damage >= VarminDamage))
+
+		if (!((trace.m_pHitEntity == pPawn) || ((Damage >= VarminDamage) && (Damage > flBestDamage))))
 			continue;
-		
+
+		flBestDamage = Damage;
+
 		// Get the distance/weight of the move
-		
 		// Better move found, override.
+		flBestDamage = Damage;
 		pTarget = pPlayer;
 		flDistance = flCurrentDistance;
 		vecBestPosition = vecPos;
 
 		pTargetPawn = pPawn;
-
+		isPawned = true;
 
 	}
-
 	// Check if a target was found
 	if (pTarget == nullptr)
 		return;
-
 
 
 	/*else if (Damage >= VarminDamage/2) {
@@ -488,18 +488,16 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Point at them
 	float VarminDamage = C_GET(float, Vars.flMinDamage);
 	float hit_chnce = C_GET(float, Vars.fHitChance);
-	if (C_GET(bool, Vars.bAutoWall) && Damage < VarminDamage)
-		return;
+
 	if (C_GET(bool, Vars.bAutoStop)) {
 		AutoStop(pUserCmd, 1);
 	}
-	
 
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
 
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
-	if (C_GET(bool, Vars.bAutoFire)) {
+	if (C_GET(bool, Vars.bAutoFire)|| C_GET(float, Vars.flSmoothing)<3) {
 		vNewAngles.x = vNewAngles.x - 0.2f;
 	}
 	else {
