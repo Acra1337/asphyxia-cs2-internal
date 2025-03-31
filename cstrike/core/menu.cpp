@@ -385,6 +385,7 @@ void T::LegitBot()
 		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
 		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
+		ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
 		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoWall)); {
 			ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
 		}
@@ -467,6 +468,11 @@ void T::Visuals()
 
 			ImGui::MultiCombo(CS_XOR("View removals"), &C_GET(unsigned int, Vars.nViewRemovals), arrViewRemovals, CS_ARRAYSIZE(arrViewRemovals));
 			
+			ImGui::Checkbox(CS_XOR("Thirdperson"), &C_GET(bool, Vars.bThirdperson));
+			if (C_GET(bool, Vars.bThirdperson)) {
+				ImGui::HotKey(CS_XOR("Thirdperson key"), &C_GET(KeyBind_t, Vars.nThirdPersonKey));
+				ImGui::SliderInt(CS_XOR("Thirdperson distance"), &C_GET(int, Vars.flThirdPersonDistance), 30, 150);
+			}
 			ImGui::PopStyleVar();
 		}
 		ImGui::EndChild();

@@ -72,7 +72,7 @@ void F::MISC::MOVEMENT::BunnyHop(CUserCmd* pCmd, CBaseUserCmdPB* pUserCmd, C_CSP
 	if (pLocalPawn->GetFlags() & FL_ONGROUND)
 	{
 		pUserCmd->pInButtonState->SetBits(EButtonStatePBBits::BUTTON_STATE_PB_BITS_BUTTONSTATE1);
-		pUserCmd->pInButtonState->nValue &= ~IN_JUMP;
+		pCmd->nButtons.nValue &= ~IN_JUMP;
 	}
 }
 

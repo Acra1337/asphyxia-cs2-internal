@@ -437,7 +437,6 @@ public:
 		// Получаем паттерн один раз
 		static auto patternResult = MEM::FindPattern2(CLIENT_DLL, CS_XOR("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 E8 ? ? ? ? 48 8B D8 48 85 C0 0F 84 ? ? ? ? 44 0F 29 44 24"));
 		if (!patternResult.get()) {
-			L_PRINT(LOG_ERROR) << "Pattern not found!";
 			return;
 		}
 
@@ -447,7 +446,6 @@ public:
 
 		// Проверяем валидность указателя на функцию (IsBadCodePtr используется редко, но может помочь)
 		if (IsBadCodePtr(reinterpret_cast<FARPROC>(fnUpdateAccuracyPenality))) {
-			L_PRINT(LOG_ERROR) << "Bad function pointer!";
 			return;
 		}
 

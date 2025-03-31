@@ -75,6 +75,10 @@ struct Variables_t
 
 	C_ADD_VARIABLE(unsigned int, nViewRemovals, VIEW_REMOVALS);
 
+	C_ADD_VARIABLE(bool, bThirdperson, false);
+	C_ADD_VARIABLE(int, flThirdPersonDistance, 90);
+	C_ADD_VARIABLE(KeyBind_t, nThirdPersonKey, 0);
+
 #pragma endregion
 
 #pragma region variables_misc
@@ -132,6 +136,7 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bAutoFire, false);
 	C_ADD_VARIABLE(bool, bAutoStop, false);
 	C_ADD_VARIABLE(bool, bAutoWall, false);
+	C_ADD_VARIABLE(bool, bAutoWallFast, false);
 	C_ADD_VARIABLE(float, flMinDamage, 90.0f);
 	C_ADD_VARIABLE(float, fHitChance, 80.0f);
 

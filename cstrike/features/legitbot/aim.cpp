@@ -288,7 +288,6 @@ int CalculateAutisticHitchance() {
 	//float flSpread = 0;
 	if (C_CSWeaponBase* pActiveWeapon = SDK::LocalPawn->GetActiveWeapon()) {
 		pActiveWeapon->UpdateAccuracyPenality();
-
 		flInaccuarcy = pActiveWeapon->GetInaccuracy();
 		//flSpread = pActiveWeapon->GetSpread();
 
@@ -297,6 +296,9 @@ int CalculateAutisticHitchance() {
 	double scale = (100 - 0) / (0.008 - 0.1);
 	double autisticHs = 0 + (flInaccuarcy - 0.1) * scale;
 	if (autisticHs < 0) autisticHs = 0;
+	if (SDK::pData->WeaponType == WEAPONTYPE_SNIPER_RIFLE) 
+		autisticHs -= 5;
+
 	return autisticHs;
 }
 
@@ -341,6 +343,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	C_CSPlayerPawn* pTargetPawn = nullptr;
 	float flBestDamage = -1;
 	bool isPawned = false;
+	bool isPenitration = false;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -456,7 +459,12 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 		if (!((trace.m_pHitEntity == pPawn) || ((Damage >= VarminDamage) && (Damage > flBestDamage))))
 			continue;
-
+		if (trace.m_pHitEntity == pPawn) {
+			isPenitration = false;
+		}
+		else {
+			isPenitration = true;
+		}
 		flBestDamage = Damage;
 
 		// Get the distance/weight of the move
@@ -525,7 +533,10 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
 		flSmoothing = 1.0f;
 	}
-	else {
+	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration) {
+		flSmoothing = 1.3f;
+	}
+	else{
 		// Get the smoothing
 		flSmoothing = C_GET(float, Vars.flSmoothing);
 		randomValue = 0;
