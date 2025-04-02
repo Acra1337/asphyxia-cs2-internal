@@ -376,21 +376,17 @@ void T::LegitBot()
 		}
 		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
-		ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
-
-		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoFire));
+		if (C_GET(bool, Vars.bAutoFire))
 		{
+			ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
 			ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
 		}
-		ImGui::EndDisabled();
 		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
 		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
-		ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
-		ImGui::BeginDisabled(!C_GET(bool, Vars.bAutoWall)); {
+		if (C_GET(bool, Vars.bAutoWall)) {
+			ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
 			ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
 		}
-		ImGui::EndDisabled();
-		
 		
 	}
 	ImGui::EndChild();
@@ -523,10 +519,10 @@ void T::Miscellaneous()
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, 0));
 
 			ImGui::Checkbox(CS_XOR("auto bunny-hopping"), &C_GET(bool, Vars.bAutoBHop));
-			if (C_GET(bool, Vars.bAutoBHop))
-				ImGui::SliderInt(CS_XOR("chance"), &C_GET(int, Vars.nAutoBHopChance), 0, 100, CS_XOR("%d%%"));
+			//if (C_GET(bool, Vars.bAutoBHop))
+				//ImGui::SliderInt(CS_XOR("chance"), &C_GET(int, Vars.nAutoBHopChance), 0, 100, CS_XOR("%d%%"));
 
-			ImGui::Checkbox(CS_XOR("auto strafe"), &C_GET(bool, Vars.bAutoStrafe));
+			//ImGui::Checkbox(CS_XOR("auto strafe"), &C_GET(bool, Vars.bAutoStrafe));
 
 			ImGui::PopStyleVar();
 		}

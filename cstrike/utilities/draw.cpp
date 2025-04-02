@@ -468,7 +468,7 @@ bool D::Setup(HWND hWnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	ImFontConfig imVerdanaConfig;
 	imVerdanaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
-	std::string get_font_path1 = GetWindowsFontPath("Verdana.ttf");
+	/*std::string get_font_path1 = GetWindowsFontPath("Verdana.ttf");
 	std::string get_font_path2 = GetWindowsFontPath("Tahoma.ttf");
 	for (int i = 0; i < CS_ARRAYSIZE(FONT::pMenu); i++)
 	{
@@ -482,7 +482,23 @@ bool D::Setup(HWND hWnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 
 	ImFontConfig imTahomaConfig;
 	imTahomaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
-	FONT::pVisual = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path2.c_str()), 14.f, &imTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());
+	FONT::pVisual = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path2.c_str()), 14.f, &imTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());*/	//for debag bild
+
+	for (int i = 0; i < CS_ARRAYSIZE(FONT::pMenu); i++)
+	{
+		const float flFontSize = 12.f * CalculateDPI(i);
+		FONT::pMenu[i] = io.Fonts->AddFontFromFileTTF(CS_XOR("D:\\Windows\\Fonts\\Verdana.ttf"), flFontSize, &imVerdanaConfig, io.Fonts->GetGlyphRangesCyrillic());
+		io.Fonts->AddFontFromMemoryTTF((void*)fa_solid_900, sizeof(fa_solid_900), flFontSize, &icons_config, icons_ranges);
+	}
+
+	imVerdanaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_Bold;
+	FONT::pExtra = io.Fonts->AddFontFromFileTTF(CS_XOR("D:\\Windows\\Fonts\\Verdana.ttf"), 14.f, &imVerdanaConfig, io.Fonts->GetGlyphRangesCyrillic());
+
+	ImFontConfig imTahomaConfig;
+	imTahomaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
+	FONT::pVisual = io.Fonts->AddFontFromFileTTF(CS_XOR("D:\\Windows\\Fonts\\Tahoma.ttf"), 14.f, &imTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());
+
+
 
 	io.Fonts->FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
 	bInitialized = io.Fonts->Build();

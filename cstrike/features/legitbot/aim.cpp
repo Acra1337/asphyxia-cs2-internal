@@ -31,8 +31,8 @@ void init_constants() {
 }
 
 struct TwoFloats {
-	float first;
-	float second;
+	double first;
+	double second;
 };
 
 float Length(const Vector_t& v) {
@@ -43,24 +43,22 @@ float GetDistance(const Vector_t& pos1, const Vector_t& pos2) {
 	Vector_t delta = static_cast<Vector_t>(pos1) - static_cast<Vector_t>(pos2);
 	return Length(delta);
 }
-
 TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, double G_0, double W_0, double M_0, double D_0) {
-	int current_x = start_x;
-	int current_y = start_y;
+	double current_x = start_x;
+	double current_y = start_y;
 	double v_x = 0, v_y = 0, W_x = 0, W_y = 0;
 
 	while (1) {
-		double dist = sqrt(pow(dest_x - start_x, 2) + pow(dest_y - start_y, 2));
+		double dist = sqrt(pow(dest_x - current_x, 2) + pow(dest_y - current_y, 2));
 		if (dist < 0.01) {
 			return { dest_x , dest_y };
-			break;
 		}
 
 		double W_mag = fmin(W_0, dist);
 
 		if (dist >= D_0) {
-			W_x = W_x / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
-			W_y = W_y / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
+			W_x = W_x / sqrt3 + (((static_cast<float>(rand()) / RAND_MAX)) - 0.5) * W_mag / sqrt5;
+			W_y = W_y / sqrt3 + (((static_cast<float>(rand()) / RAND_MAX)) - 0.5) * W_mag / sqrt5;
 		}
 		else {
 			W_x /= sqrt3;
@@ -73,8 +71,8 @@ TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, doubl
 			}
 		}
 
-		v_x += W_x + G_0 * (dest_x - start_x) / dist;
-		v_y += W_y + G_0 * (dest_y - start_y) / dist;
+		v_x += W_x + G_0 * (dest_x - current_x) / dist;
+		v_y += W_y + G_0 * (dest_y - current_y) / dist;
 
 		double v_mag = sqrt(v_x * v_x + v_y * v_y);
 		if (v_mag > M_0) {
@@ -83,10 +81,10 @@ TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, doubl
 			v_y = (v_y / v_mag) * v_clip;
 		}
 
-		TwoFloats result = { v_x/5, v_y/5 };
-		return result;
+		// Обновляем текущую позицию
+		current_x += v_x;
+		current_y += v_y;
 	}
-
 }
 
 class Timer {
@@ -533,11 +531,10 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
 		flSmoothing = 1.0f;
 	}
-	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration) {
+	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.3f) {
 		flSmoothing = 1.3f;
 	}
 	else{
-		// Get the smoothing
 		flSmoothing = C_GET(float, Vars.flSmoothing);
 		randomValue = 0;
 
@@ -545,12 +542,12 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
 	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
-		double G_0 = 8;
-		double W_0 = 30;
+		double G_0 = 14;
+		double W_0 = 15;
 		double M_0 = 15;
-		double D_0 = 1;
-		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) + randomValue))*10, 
-			static_cast<float>(((vNewAngles.y) + randomValue))*10,
+		double D_0 = 3;
+		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) + randomValue)), 
+			static_cast<float>(((vNewAngles.y) + randomValue)),
 			G_0, W_0, M_0, D_0);
 
 		pViewAngles->x += result_aim.first/ flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil

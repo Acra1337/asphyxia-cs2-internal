@@ -40,6 +40,7 @@ enum ESelectedRemovals : unsigned int
 	VIEW_SMOKE = 1 << 1,
 	VIEW_SCOPE_ZOOM = 1 << 2,
 	VIEW_SCOPE_OVERLAY = 1 << 3,
+	VIEW_REMOVALS_ALL = VIEW_FLASH | VIEW_SMOKE | VIEW_SCOPE_ZOOM | VIEW_SCOPE_OVERLAY,
 	VIEW_REMOVALS = VIEW_NONE
 };
 
@@ -60,20 +61,20 @@ enum EMenuAddition : MenuAddition_t
 struct Variables_t
 {
 #pragma region variables_visuals
-	C_ADD_VARIABLE(bool, bVisualOverlay, false);
+	C_ADD_VARIABLE(bool, bVisualOverlay, true);
 
-	C_ADD_VARIABLE(FrameOverlayVar_t, overlayBox, FrameOverlayVar_t(false));
-	C_ADD_VARIABLE(TextOverlayVar_t, overlayName, TextOverlayVar_t(false));
-	C_ADD_VARIABLE(BarOverlayVar_t, overlayHealthBar, BarOverlayVar_t(false, false, false, 1.f, Color_t(0, 255, 0), Color_t(255, 0, 0)));
-	C_ADD_VARIABLE(BarOverlayVar_t, overlayArmorBar, BarOverlayVar_t(false, false, false, 1.f, Color_t(0, 255, 255), Color_t(255, 0, 0)));
+	C_ADD_VARIABLE(FrameOverlayVar_t, overlayBox, FrameOverlayVar_t(true));
+	C_ADD_VARIABLE(TextOverlayVar_t, overlayName, TextOverlayVar_t(true));
+	C_ADD_VARIABLE(BarOverlayVar_t, overlayHealthBar, BarOverlayVar_t(true, false, false, 1.f, Color_t(0, 255, 0), Color_t(255, 0, 0)));
+	C_ADD_VARIABLE(BarOverlayVar_t, overlayArmorBar, BarOverlayVar_t(true, false, false, 1.f, Color_t(0, 255, 255), Color_t(255, 0, 0)));
 
-	C_ADD_VARIABLE(bool, bVisualChams, false);
-	C_ADD_VARIABLE(int, nVisualChamMaterial, VISUAL_MATERIAL_PRIMARY_WHITE);
-	C_ADD_VARIABLE(bool, bVisualChamsIgnoreZ, false); // invisible chams
-	C_ADD_VARIABLE(Color_t, colVisualChams, Color_t(0, 255, 0));
-	C_ADD_VARIABLE(Color_t, colVisualChamsIgnoreZ, Color_t(255, 0, 0));
+	C_ADD_VARIABLE(bool, bVisualChams, true);
+	C_ADD_VARIABLE(int, nVisualChamMaterial, VISUAL_MATERIAL_ILLUMINATE);
+	C_ADD_VARIABLE(bool, bVisualChamsIgnoreZ, true); // invisible chams
+	C_ADD_VARIABLE(Color_t, colVisualChams, Color_t(243, 175, 50, 255));
+	C_ADD_VARIABLE(Color_t, colVisualChamsIgnoreZ, Color_t(66, 0, 147, 96));
 
-	C_ADD_VARIABLE(unsigned int, nViewRemovals, VIEW_REMOVALS);
+	C_ADD_VARIABLE(unsigned int, nViewRemovals, VIEW_REMOVALS_ALL);
 
 	C_ADD_VARIABLE(bool, bThirdperson, false);
 	C_ADD_VARIABLE(int, flThirdPersonDistance, 90);
@@ -86,7 +87,7 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bWatermark, true);
 
 	C_ADD_VARIABLE(bool, bAutoBHop, false);
-	C_ADD_VARIABLE(int, nAutoBHopChance, 100);
+	//C_ADD_VARIABLE(int, nAutoBHopChance, 100);
 
 	C_ADD_VARIABLE(bool, bAutoStrafe, false);
 #pragma endregion
@@ -129,16 +130,16 @@ struct Variables_t
 #pragma region variables_legitbot
 	C_ADD_VARIABLE(bool, bLegitbot, false);
 	C_ADD_VARIABLE(float, flAimRange, 10.0f);
-	C_ADD_VARIABLE(float, flSmoothing, 10.0f);
-	C_ADD_VARIABLE(bool, bLegitbotAlwaysOn, false);
+	C_ADD_VARIABLE(float, flSmoothing, 2.5f);
+	C_ADD_VARIABLE(bool, bLegitbotAlwaysOn, true);
 	C_ADD_VARIABLE(unsigned int, nLegitbotActivationKey, VK_HOME);
-	C_ADD_VARIABLE(bool, bHumanize, false);
-	C_ADD_VARIABLE(bool, bAutoFire, false);
-	C_ADD_VARIABLE(bool, bAutoStop, false);
-	C_ADD_VARIABLE(bool, bAutoWall, false);
-	C_ADD_VARIABLE(bool, bAutoWallFast, false);
-	C_ADD_VARIABLE(float, flMinDamage, 90.0f);
-	C_ADD_VARIABLE(float, fHitChance, 80.0f);
+	C_ADD_VARIABLE(bool, bHumanize, true);
+	C_ADD_VARIABLE(bool, bAutoFire, true);
+	C_ADD_VARIABLE(bool, bAutoStop, true);
+	C_ADD_VARIABLE(bool, bAutoWall, true);
+	C_ADD_VARIABLE(bool, bAutoWallFast, true);
+	C_ADD_VARIABLE(float, flMinDamage, 100.0f);
+	C_ADD_VARIABLE(float, fHitChance, 98.0f);
 
 #pragma endregion
 };
