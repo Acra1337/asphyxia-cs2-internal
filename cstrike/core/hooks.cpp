@@ -4,16 +4,18 @@
 #include "variables.h"
 
 // used: game's sdk
+#include "../sdk/interfaces/ccsgoinput.h"
+#include "../sdk/interfaces/cgameentitysystem.h"
+#include "../sdk/interfaces/iengineclient.h"
+#include "../sdk/interfaces/iglobalvars.h"
+#include "../sdk/interfaces/iinputsystem.h"
+#include "../sdk/interfaces/imaterialsystem.h"
+#include "../sdk/interfaces/inetworkclientservice.h"
+#include "../sdk/interfaces/ipvs.h"
 #include "../sdk/interfaces/iswapchaindx11.h"
 #include "../sdk/interfaces/iviewrender.h"
-#include "../sdk/interfaces/cgameentitysystem.h"
-#include "../sdk/interfaces/ccsgoinput.h"
-#include "../sdk/interfaces/iinputsystem.h"
-#include "../sdk/interfaces/iengineclient.h"
-#include "../sdk/interfaces/inetworkclientservice.h"
-#include "../sdk/interfaces/iglobalvars.h"
-#include "../sdk/interfaces/imaterialsystem.h"
-#include "../sdk/interfaces/ipvs.h"
+#include "../../sdk/interfaces/cgametracemanager.h"
+
 
 // used: viewsetup
 #include "../sdk/datatypes/viewsetup.h"
@@ -244,6 +246,11 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	CBaseUserCmdPB* pBaseCmd = SDK::UserCmd->csgoUserCmd.pBaseCmd;
 	if (pBaseCmd == nullptr)
 		return bResult;
+
+	CMsgQAngle* pViewAngles = pBaseCmd->pViewAngles;
+	if (pViewAngles == nullptr)
+		return bResult;
+
 	SDK::LocalController = CCSPlayerController::GetLocalPlayerController();
 	if (SDK::LocalController == nullptr)
 		return bResult;
@@ -286,6 +293,7 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 
 	SDK::pData->ServerTime = TICKS_TO_TIME(pLocalController->GetTickBase());
 
+	SDK::pData->ViewAngle = pViewAngles->angValue;
 	SDK::pData->WeaponType = pWeaponBaseVData->GetWeaponType();
 	SDK::pData->CanShoot = pLocalPawn->CanAttack(SDK::pData->ServerTime) && pWeaponBaseGun->CanPrimaryAttack(SDK::pData->WeaponType, SDK::pData->ServerTime);
 	SDK::pData->CanScope = !pLocalPawn->IsScoped() && !(UserCmd->nButtons.nValue & IN_ZOOM) && !SDK::pData->NoSpread && (pLocalPawn->GetFlags() & FL_ONGROUND) && (SDK::pData->WeaponType == WEAPONTYPE_SNIPER_RIFLE);
@@ -345,6 +353,35 @@ void CS_FASTCALL H::OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup)
 	const auto oOverrideView = hkOverrideView.GetOriginal();
 	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
 		return hkOverrideView.GetOriginal()(pClientModeCSNormal, pSetup);
+	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
+		return oOverrideView(pClientModeCSNormal, pSetup);
+
+	if (!SDK::LocalController || !SDK::LocalPawn)
+		return oOverrideView(pClientModeCSNormal, pSetup);
+
+	SDK::pData->InThirdPerson = IPT::GetBindState(C_GET(KeyBind_t, Vars.nThirdPersonKey));
+
+	if (SDK::pData->WeaponType == WEAPONTYPE_GRENADE)
+		SDK::pData->InThirdPerson = false;
+
+	if (SDK::pData->InThirdPerson && C_GET(bool, Vars.bThirdperson)) {
+		QAngle_t angAdjustedCameraAngle = SDK::pData->ViewAngle;
+		angAdjustedCameraAngle.x *= -1;
+
+		pSetup->vecOrigin = MATH::CalculateCameraPosition(SDK::LocalPawn->GetEyePosition(), -C_GET(int, Vars.flThirdPersonDistance), angAdjustedCameraAngle);
+
+		Ray_t ray{};
+		GameTrace_t trace{};
+		TraceFilter_t filter{ 0x1C3003, SDK::LocalPawn, nullptr, 4 };
+
+		if (I::GameTraceManager->TraceShape(&ray, SDK::LocalPawn->GetEyePosition(), pSetup->vecOrigin, &filter, &trace)) {
+			if (trace.m_pHitEntity != nullptr)
+				pSetup->vecOrigin = trace.m_vecPosition;
+		}
+
+		pSetup->angView = MATH::NormalizeAngles(MATH::CalcAngles(pSetup->vecOrigin, SDK::LocalPawn->GetEyePosition()));
+	}
+	
 
 	oOverrideView(pClientModeCSNormal, pSetup);
 }

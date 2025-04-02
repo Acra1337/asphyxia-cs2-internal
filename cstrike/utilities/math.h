@@ -113,6 +113,10 @@ namespace MATH
 		angles->y = yaw;
 		angles->z = 0.f;
 	}
+	QAngle_t CalcAngles(Vector_t viewPos, Vector_t aimPos);
+	Vector_t CalculateCameraPosition(Vector_t anchorPos, float distance, QAngle_t viewAngles);
+	QAngle_t NormalizeAngles(QAngle_t angles);
+
 
 	/* @section: exponential */
 	/// @returns: true if given number is power of two, false otherwise
