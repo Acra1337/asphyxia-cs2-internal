@@ -507,7 +507,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		vNewAngles.x = vNewAngles.x - 0.2f;
 	}
 	else {
-		vNewAngles.x = vNewAngles.x + 2.f;
+		vNewAngles.x = vNewAngles.x + 0.5f;
 	}
 	
 	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);
