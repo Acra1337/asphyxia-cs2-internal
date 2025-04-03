@@ -603,6 +603,29 @@ void OVERLAY::Player(CCSPlayerController* pLocal, CCSPlayerController* pPlayer, 
 	if (const auto& frameOverlayConfig = C_GET(FrameOverlayVar_t, Vars.overlayBox); frameOverlayConfig.bEnable)
 		context.AddBoxComponent(D::pDrawListActive, vecBox, 1, frameOverlayConfig.flThickness, frameOverlayConfig.flRounding, frameOverlayConfig.colPrimary, frameOverlayConfig.colOutline);
 
+
+	C_BasePlayerWeapon* active_weapon = pPlayerPawn->GetActiveWeapon();
+	if (active_weapon) {
+		CBasePlayerWeaponVData* weapon_data = active_weapon->get_weapon_data();
+		if (weapon_data) {
+			/*player_info.m_ammo = active_weapon->m_clip1();
+			player_info.m_max_ammo = weapon_data->m_max_clip1();*/
+
+			const char* m_name = weapon_data->m_name();
+			const char* name_length = strstr(m_name, "weapon_");
+			std::string weapon_name = name_length ? name_length + strlen("weapon_") : m_name;
+			std::transform(weapon_name.begin(), weapon_name.end(), weapon_name.begin(), ::toupper);
+
+			char* wep_name = weapon_name.data();
+
+			if (const auto& nameOverlayConfig = C_GET(TextOverlayVar_t, Vars.overlayWeapon); nameOverlayConfig.bEnable)
+			{
+				context.AddComponent(new CTextComponent(false, SIDE_BOTTOM, DIR_TOP, FONT::pVisual, wep_name, Vars.overlayWeapon));
+			}
+		}
+	}
+
+
 	if (const auto& nameOverlayConfig = C_GET(TextOverlayVar_t, Vars.overlayName); nameOverlayConfig.bEnable)
 	{
 		const char* szPlayerName = pPlayer->GetPlayerName();

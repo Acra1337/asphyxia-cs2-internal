@@ -507,7 +507,12 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		vNewAngles.x = vNewAngles.x - 0.2f;
 	}
 	else {
-		vNewAngles.x = vNewAngles.x + 0.5f;
+		if (SDK::pData->WeaponType != WEAPONTYPE_SNIPER_RIFLE && SDK::pData->WeaponType != WEAPONTYPE_SHOTGUN) {
+			vNewAngles.x = vNewAngles.x + 0.2;
+		}
+		else {
+			vNewAngles.x = vNewAngles.x + Vars.flSmoothing / 20;
+		}
 	}
 	
 	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);

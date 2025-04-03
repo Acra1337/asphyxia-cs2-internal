@@ -355,41 +355,59 @@ void T::Render(const char* szTabBar, const CTab* arrTabs, const unsigned long lo
 
 void T::LegitBot()
 {
-	ImGui::BeginChild(CS_XOR("legitbot.aimbot"), ImVec2{}, true, ImGuiWindowFlags_MenuBar);
+	ImGui::Columns(2, CS_XOR("##legitbot_collumns"), false);
 	{
-		if (ImGui::BeginMenuBar())
+		ImGui::BeginChild(CS_XOR("legitbot.aimbot"), ImVec2{}, true, ImGuiWindowFlags_MenuBar);
 		{
-			ImGui::TextUnformatted(CS_XOR("aimbot"));
-			ImGui::EndMenuBar();
-		}
+			if (ImGui::BeginMenuBar())
+			{
+				ImGui::TextUnformatted(CS_XOR("aimbot"));
+				ImGui::EndMenuBar();
+			}
 
-		ImGui::Checkbox(CS_XOR("enable##aimbot"), &C_GET(bool, Vars.bLegitbot));
-		ImGui::SliderFloat(CS_XOR("aim range"), &C_GET(float, Vars.flAimRange), 1.f, 135.f);
-		ImGui::SliderFloat(CS_XOR("smoothing"), &C_GET(float, Vars.flSmoothing), 1.f, 100.f);
+			ImGui::Checkbox(CS_XOR("enable##aimbot"), &C_GET(bool, Vars.bLegitbot));
+			ImGui::SliderFloat(CS_XOR("aim range"), &C_GET(float, Vars.flAimRange), 1.f, 135.f);
+			ImGui::SliderFloat(CS_XOR("smoothing"), &C_GET(float, Vars.flSmoothing), 1.f, 15.f);
 
-		ImGui::NewLine();
-		// Key
-		ImGui::Checkbox(CS_XOR("always on##aimbot"), &C_GET(bool, Vars.bLegitbotAlwaysOn));
-		ImGui::BeginDisabled(C_GET(bool, Vars.bLegitbotAlwaysOn));
-		{
-			ImGui::HotKey(CS_XOR("toggle key"), &C_GET(unsigned int, Vars.nLegitbotActivationKey));
+			ImGui::NewLine();
+			// Key
+			ImGui::Checkbox(CS_XOR("always on##aimbot"), &C_GET(bool, Vars.bLegitbotAlwaysOn));
+			ImGui::BeginDisabled(C_GET(bool, Vars.bLegitbotAlwaysOn));
+			{
+				ImGui::HotKey(CS_XOR("toggle key"), &C_GET(unsigned int, Vars.nLegitbotActivationKey));
+			}
+			ImGui::EndDisabled();
+
 		}
-		ImGui::EndDisabled();
-		ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
-		if (C_GET(bool, Vars.bAutoFire))
-		{
-			ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
-			ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
-		}
-		ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
-		ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
-		if (C_GET(bool, Vars.bAutoWall)) {
-			ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
-			ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
-		}
-		
+		ImGui::EndChild();
 	}
-	ImGui::EndChild();
+	ImGui::NextColumn();
+	{
+		ImGui::BeginChild(CS_XOR("legit.aimbot"), ImVec2{}, true, ImGuiWindowFlags_MenuBar);
+		{
+			if (ImGui::BeginMenuBar())
+			{
+				ImGui::TextUnformatted("extended");
+				ImGui::EndMenuBar();
+			}
+
+			ImGui::Checkbox(CS_XOR("AutoFire"), &C_GET(bool, Vars.bAutoFire));
+			if (C_GET(bool, Vars.bAutoFire))
+			{
+				ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
+				ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
+			}
+			ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
+			ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
+			if (C_GET(bool, Vars.bAutoWall)) {
+				ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
+				ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
+			}
+
+		}
+		ImGui::EndChild();
+	}
+	ImGui::Columns(1);
 }
 
 void T::Visuals()
@@ -419,6 +437,7 @@ void T::Visuals()
 				ImGui::Checkbox(CS_XOR("name"), &C_GET(TextOverlayVar_t, Vars.overlayName).bEnable);
 				ImGui::Checkbox(CS_XOR("health bar"), &C_GET(BarOverlayVar_t, Vars.overlayHealthBar).bEnable);
 				ImGui::Checkbox(CS_XOR("armor bar"), &C_GET(BarOverlayVar_t, Vars.overlayArmorBar).bEnable);
+				ImGui::Checkbox(CS_XOR("weapon"), &C_GET(TextOverlayVar_t, Vars.overlayWeapon).bEnable);
 			}
 			ImGui::EndDisabled();
 

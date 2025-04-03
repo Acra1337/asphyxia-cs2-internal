@@ -36,6 +36,8 @@ public:
 
 	SCHEMA_ADD_FIELD(bool, IsFullAuto, "CBasePlayerWeaponVData->m_bIsFullAuto");
 	SCHEMA_ADD_FIELD(std::int32_t, GetMaxClip1, "CBasePlayerWeaponVData->m_iMaxClip1");
+	SCHEMA_ADD_FIELD(const char*, m_name, "CCSWeaponBaseVData->m_szName");
+
 };
 
 class CCSWeaponBaseVData : public CBasePlayerWeaponVData

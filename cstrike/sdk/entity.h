@@ -405,6 +405,10 @@ public:
 	SCHEMA_ADD_FIELD(std::int32_t, GetClip1, "C_BasePlayerWeapon->m_iClip1");
 	SCHEMA_ADD_FIELD(std::int32_t, GetClip2, "C_BasePlayerWeapon->m_iClip2");
 	SCHEMA_ADD_FIELD(std::int32_t[2], GetReserveAmmo, "C_BasePlayerWeapon->m_pReserveAmmo");
+
+	CCSWeaponBaseVData* get_weapon_data() {
+		return *reinterpret_cast<CCSWeaponBaseVData**>(reinterpret_cast<uintptr_t>(this) + 0x380);
+	}
 };
 
 class C_CSWeaponBase : public C_BasePlayerWeapon

@@ -67,11 +67,12 @@ struct Variables_t
 	C_ADD_VARIABLE(TextOverlayVar_t, overlayName, TextOverlayVar_t(true));
 	C_ADD_VARIABLE(BarOverlayVar_t, overlayHealthBar, BarOverlayVar_t(true, false, false, 1.f, Color_t(0, 255, 0), Color_t(255, 0, 0)));
 	C_ADD_VARIABLE(BarOverlayVar_t, overlayArmorBar, BarOverlayVar_t(true, false, false, 1.f, Color_t(0, 255, 255), Color_t(255, 0, 0)));
+	C_ADD_VARIABLE(TextOverlayVar_t, overlayWeapon, TextOverlayVar_t(true));
 
 	C_ADD_VARIABLE(bool, bVisualChams, true);
 	C_ADD_VARIABLE(int, nVisualChamMaterial, VISUAL_MATERIAL_ILLUMINATE);
 	C_ADD_VARIABLE(bool, bVisualChamsIgnoreZ, true); // invisible chams
-	C_ADD_VARIABLE(Color_t, colVisualChams, Color_t(243, 175, 50, 255));
+	C_ADD_VARIABLE(Color_t, colVisualChams, Color_t(185, 255, 83, 255));
 	C_ADD_VARIABLE(Color_t, colVisualChamsIgnoreZ, Color_t(66, 0, 147, 96));
 
 	C_ADD_VARIABLE(unsigned int, nViewRemovals, VIEW_REMOVALS_ALL);
