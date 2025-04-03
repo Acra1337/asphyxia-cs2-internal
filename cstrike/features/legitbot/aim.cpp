@@ -310,6 +310,24 @@ void ActionFire() {
 	TriggerMousePress();
 }
 
+void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
+	static float revolverPrepareTime = 0.1f;
+	static float readyTime;
+
+	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
+		return;
+
+	if (!readyTime)
+		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
+
+	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
+
+	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
+		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
+	else
+		readyTime = 0.0f;
+}
+
 Timer myTimer;
 
 void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLocalPawn, CCSPlayerController* pLocalController)
@@ -342,6 +360,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	float flBestDamage = -1;
 	bool isPawned = false;
 	bool isPenitration = false;
+	bool isBaim = false;
+	std::vector<std::uint32_t> cHitboxes ={ HEAD, STOMACH, CENTER }; //{ HEAD, STOMACH, CENTER };
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -438,42 +458,55 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
 		//	continue;
 		//Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
-		
+		float VarminDamage = C_GET(float, Vars.flMinDamage);
 		if (C_GET(bool, Vars.bAutoWall)) {
-			AutoWall::mData.iHitGroup = iBone;
-			AutoWall::mData.pTargetPawn = pPawn;
-			AutoWall::mData.vecEndPos = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6);
-			AutoWall::mData.vecStartPos = pLocalPawn->GetEyePosition();
+			const float flHealthFactor = pPawn->GetHealth();
+			for (auto& iBone : cHitboxes) {
+				AutoWall::mData.iHitGroup = iBone;
+				AutoWall::mData.pTargetPawn = pPawn;
+				AutoWall::mData.vecStartPos = pLocalPawn->GetEyePosition();
+				AutoWall::mData.vecEndPos = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone);
 
-			Damage = static_cast<float>(AutoWall::mData.flDamage);
-			if (!AutoWall::FireBullet(AutoWall::mData))
-				continue;
+
+				if (!AutoWall::FireBullet(AutoWall::mData))
+					continue;
+
+				int currentBone = iBone;
+				float currentDamage = static_cast<float>(AutoWall::mData.flDamage) - 2;
+
+				//L_PRINT(LOG_INFO) << "bone: " << currentBone << " dmg: " << currentDamage << " hp: " << flHealthFactor;
+				bool isTargetEntity = (trace.m_pHitEntity == pPawn);
+				bool isDamageSufficient = (currentDamage >= VarminDamage || currentDamage >= flHealthFactor && currentDamage > flBestDamage);
+
+				if (!(isTargetEntity || isDamageSufficient))
+					continue;
+
+				if (isDamageSufficient) {
+
+
+					vecPos = pBoneCache->GetOrigin(currentBone);
+					flBestDamage = currentDamage;
+					pTarget = pPlayer;
+					flDistance = flCurrentDistance;
+					vecBestPosition = vecPos;
+
+					pTargetPawn = pPawn;
+					isPawned = true;
+				}
+			}
 		}
 		else {
 			Damage = 0;
 		}
 
-		float VarminDamage = C_GET(float, Vars.flMinDamage);
-
-		if (!((trace.m_pHitEntity == pPawn) || ((Damage >= VarminDamage) && (Damage > flBestDamage))))
-			continue;
+		
 		if (trace.m_pHitEntity == pPawn) {
 			isPenitration = false;
 		}
 		else {
 			isPenitration = true;
 		}
-		flBestDamage = Damage;
-
-		// Get the distance/weight of the move
-		// Better move found, override.
-		flBestDamage = Damage;
-		pTarget = pPlayer;
-		flDistance = flCurrentDistance;
-		vecBestPosition = vecPos;
-
-		pTargetPawn = pPawn;
-		isPawned = true;
+		
 
 	}
 	// Check if a target was found
