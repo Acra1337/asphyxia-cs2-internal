@@ -401,7 +401,7 @@ void T::LegitBot()
 			ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 			if (C_GET(bool, Vars.bAutoWall)) {
 				ImGui::Checkbox(CS_XOR("AutoWall fast aim"), &C_GET(bool, Vars.bAutoWallFast));
-				ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 100.f);
+				ImGui::SliderFloat(CS_XOR("MinDamage"), &C_GET(float, Vars.flMinDamage), 1.f, 105.f);
 			}
 
 		}

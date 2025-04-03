@@ -332,7 +332,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-0.15f, 0.15f);
+	std::uniform_real_distribution<float> dis(-0.1f, 0.1f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
@@ -504,7 +504,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
 	if (C_GET(bool, Vars.bAutoFire)|| C_GET(float, Vars.flSmoothing)<3) {
-		vNewAngles.x = vNewAngles.x - 0.2f;
+		vNewAngles.x = vNewAngles.x - 0.15f;
 	}
 	else {
 		if (SDK::pData->WeaponType != WEAPONTYPE_SNIPER_RIFLE && SDK::pData->WeaponType != WEAPONTYPE_SHOTGUN) {
