@@ -356,6 +356,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	bool isPenitration = false;
 	bool isBaim = false;
 	std::vector<std::uint32_t> cHitboxes ={ HEAD, CENTER }; //{ HEAD, STOMACH, CENTER };
+	int final_bone = 0;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -483,6 +484,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 					pTarget = pPlayer;
 					flDistance = flCurrentDistance;
 					vecBestPosition = vecPos;
+					final_bone = iBone;
 
 					pTargetPawn = pPawn;
 					isPawned = true;
@@ -533,7 +535,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
 	//L_PRINT(LOG_INFO) << "dist: " << GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
 
-	if (C_GET(bool, Vars.bAutoFire)|| C_GET(float, Vars.flSmoothing)<3) {
+	if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
 		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);
 	}
 	else {
