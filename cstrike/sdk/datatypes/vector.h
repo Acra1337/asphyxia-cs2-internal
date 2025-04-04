@@ -280,6 +280,7 @@ struct Vector_t
 		return flLength;
 	}
 
+
 	/// normalize magnitude of each component of the vector
 	/// @returns: copy of the vector with normalized components
 	[[nodiscard]] Vector_t Normalized() const

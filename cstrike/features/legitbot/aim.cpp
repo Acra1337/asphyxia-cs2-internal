@@ -35,6 +35,14 @@ struct TwoFloats {
 	double second;
 };
 
+Vector_t Cross(const Vector_t& a, const Vector_t& b) {
+	Vector_t result;
+	result.x = a.y * b.z - a.z * b.y;
+	result.y = a.z * b.x - a.x * b.z;
+	result.z = a.x * b.y - a.y * b.x;
+	return result;
+}
+
 float Length(const Vector_t& v) {
 	return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
@@ -344,7 +352,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-0.07f, 0.07f);
+	std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
@@ -355,7 +363,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	bool isPawned = false;
 	bool isPenitration = false;
 	bool isBaim = false;
-	std::vector<std::uint32_t> cHitboxes ={ HEAD, CENTER }; //{ HEAD, STOMACH, CENTER };
+	std::vector<std::uint32_t> cHitboxes ={ HEAD,STOMACH, CENTER }; //{ HEAD, STOMACH, CENTER };
 	int final_bone = 0;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
@@ -453,6 +461,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
 		//	continue;
 		//Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+		float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
 		float VarminDamage = C_GET(float, Vars.flMinDamage);
 		if (C_GET(bool, Vars.bAutoWall)) {
 			const float flHealthFactor = pPawn->GetHealth();
@@ -460,8 +469,23 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 				AutoWall::mData.iHitGroup = iBone;
 				AutoWall::mData.pTargetPawn = pPawn;
 				AutoWall::mData.vecStartPos = pLocalPawn->GetEyePosition();
-				AutoWall::mData.vecEndPos = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone);
+				Vector_t targetVec = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone);
+				if (iBone == 6) {
+					Vector_t forward = (targetVec - AutoWall::mData.vecStartPos).Normalized();
 
+					Vector_t worldUp(0, 0, 1);
+
+					Vector_t left = Cross(worldUp, forward);
+
+					float offset = randomValue;
+
+					float correctedOffset = 20 * (60.f / distance_vec);
+					targetVec.z += correctedOffset;
+					
+					targetVec += left * offset;
+
+				}
+				AutoWall::mData.vecEndPos = targetVec;
 
 				if (!AutoWall::FireBullet(AutoWall::mData))
 					continue;
@@ -477,17 +501,18 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 					continue;
 
 				if (isDamageSufficient) {
-
-
-					vecPos = pBoneCache->GetOrigin(currentBone);
+					//vecPos = pBoneCache->GetOrigin(currentBone);
 					flBestDamage = currentDamage;
 					pTarget = pPlayer;
 					flDistance = flCurrentDistance;
-					vecBestPosition = vecPos;
+					vecBestPosition = targetVec;
 					final_bone = iBone;
 
 					pTargetPawn = pPawn;
 					isPawned = true;
+				}
+				else if(!isDamageSufficient && currentDamage >= flBestDamage){
+					vecBestPosition = targetVec;
 				}
 			}
 		}
@@ -533,9 +558,9 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
 	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
-	//L_PRINT(LOG_INFO) << "dist: " << GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
+	//L_PRINT(LOG_INFO) << "dist: " << vNewAngles;
 
-	if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
+	/*if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
 		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);
 	}
 	else {
@@ -545,7 +570,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		else {
 			vNewAngles.x = vNewAngles.x + Vars.flSmoothing / 20;
 		}
-	}
+	}*/
 	
 	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);
 	CCSPlayer_WeaponServices* WeaponServices = SDK::LocalPawn->GetWeaponServices();

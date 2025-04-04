@@ -64,7 +64,6 @@ void AutoWall::ScaleDamage(Data_t& mData) {
 bool AutoWall::FireBullet(Data_t& mData) {
 	if (!SDK::LocalPawn || !mData.pTargetPawn || !SDK::WeaponBaseVData)
 		return false;
-
 	const Vector_t vecDirection = mData.vecEndPos - mData.vecStartPos;
 	const Vector_t vecEndPosition = vecDirection * SDK::WeaponBaseVData->GetRange();
 
