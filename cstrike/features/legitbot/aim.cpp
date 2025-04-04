@@ -344,7 +344,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-0.05f, 0.05f);
+	std::uniform_real_distribution<float> dis(-0.07f, 0.07f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
