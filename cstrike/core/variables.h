@@ -86,6 +86,8 @@ struct Variables_t
 #pragma region variables_misc
 	C_ADD_VARIABLE(bool, bAntiUntrusted, true);
 	C_ADD_VARIABLE(bool, bWatermark, true);
+	C_ADD_VARIABLE(bool, bHitSound, true);
+	C_ADD_VARIABLE(float, flSoundVolume, 0.05f);
 
 	C_ADD_VARIABLE(bool, bAutoBHop, false);
 	//C_ADD_VARIABLE(int, nAutoBHopChance, 100);

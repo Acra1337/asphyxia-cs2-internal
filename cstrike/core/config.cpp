@@ -96,6 +96,9 @@ std::size_t C::VariableObject_t::GetSerializationSize() const
 
 #pragma endregion
 
+
+
+
 bool C::Setup(const wchar_t* wszDefaultFileName)
 {
 	if (!CORE::GetWorkingPath(wszConfigurationsPath))

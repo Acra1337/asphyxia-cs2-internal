@@ -4,6 +4,8 @@
 
 // used: globalvariables
 #include "../sdk/interfaces/iglobalvars.h"
+#include "../sdk/interfaces/cgameentitysystem.h"
+#include "../sdk/interfaces/cgameeventmanager.h"
 
 #pragma region sdk_definitons
 #define GAME_RESOURCE_SERVICE_CLIENT CS_XOR("GameResourceServiceClientV00")
@@ -42,6 +44,7 @@ class IResourceSystem;
 class CResourceHandleUtils;
 class CPVS;
 class CGameTraceManager;
+class CGameEventManager;
 
 // [d3d] struct
 struct ID3D11Device;
@@ -76,4 +79,5 @@ namespace I
 	inline CResourceHandleUtils* ResourceHandleUtils = nullptr;
 	inline CPVS* PVS = nullptr;
 	inline CGameTraceManager* GameTraceManager = nullptr;
+	inline CGameEventManager* GameEventManager = nullptr;
 }

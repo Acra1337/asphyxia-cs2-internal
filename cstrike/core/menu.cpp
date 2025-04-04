@@ -520,9 +520,12 @@ void T::Miscellaneous()
 				I::Cvar->UnlockHiddenCVars();
 				NOTIFY::Push({ N_TYPE_INFO, CS_XOR("unlocked all hidden cvars") });
 			}
-
+		
 			ImGui::PopStyleColor();
-
+			ImGui::Checkbox(CS_XOR("HitSound"), &C_GET(bool, Vars.bHitSound));
+			if (C_GET(bool, Vars.bHitSound)) {
+				ImGui::SliderFloat(CS_XOR("Volume"), &C_GET(float, Vars.flSoundVolume), 0, 1.f);
+			}
 			ImGui::PopStyleVar();
 		}
 		ImGui::EndChild();

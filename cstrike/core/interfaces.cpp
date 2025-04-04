@@ -142,6 +142,7 @@ bool I::Setup()
 	ResourceSystem = Capture<IResourceSystem>(pResourceSystemRegisterList, RESOURCE_SYSTEM);
 	bSuccess &= (ResourceSystem != nullptr);
 
+
 	if (ResourceSystem != nullptr)
 	{
 		ResourceHandleUtils = reinterpret_cast<CResourceHandleUtils*>(ResourceSystem->QueryInterface(RESOURCE_HANDLE_UTILS));
@@ -187,6 +188,9 @@ bool I::Setup()
 	// @ida: #STR: "Weapon_Knife.Stab" then go up
 	GameTraceManager = *reinterpret_cast<CGameTraceManager**>(MEM::GetAbsoluteAddress(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 8B 0D ? ? ? ? 4C 8B C3 66 89 44 24")), 0x3, 0x0));
 	bSuccess &= (GameTraceManager != nullptr);
+
+	GameEventManager = *reinterpret_cast<CGameEventManager**>(MEM::GetVFunc<CAddress>(Client, 14U).add(0x3E).rel().get());
+	bSuccess &= (GameEventManager != nullptr);
 
 	return bSuccess;
 }
