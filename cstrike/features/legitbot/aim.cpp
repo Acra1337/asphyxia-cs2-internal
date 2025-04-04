@@ -197,8 +197,8 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	;
 	//pUserCmd->flSideMove = 0.0f;
 	//pUserCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
-	float multipler = 0;
-	iTickCount++;
+	/*float multipler = 0;
+	iTickCount++;*/
 	//I::Input->nAttackStartHistoryIndex1 = 0;
 	//I::Input->pInputMessage.iPlayerTickCount = iTickCount;
 	//pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
@@ -209,24 +209,18 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	float flCosRotation = std::cos(flRotation);
 	float flSinRotation = std::sin(flRotation);*/
 
-	if (type == 1 ){
-		float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
-		float flRotation = M_DEG2RAD(pUserCmd->pViewAngles->angValue.y - flYaw);
+	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
+	float flRotation = M_DEG2RAD(pUserCmd->pViewAngles->angValue.y - flYaw);
 
-		float flCosRotation = std::cos(flRotation);
-		float flSinRotation = std::sin(flRotation);
+	float flCosRotation = std::cos(flRotation);
+	float flSinRotation = std::sin(flRotation);
 
-		/*float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-		float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;*/
+	/*float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;*/
 		
-		pUserCmd->flForwardMove = 0.0f;
-		pUserCmd->flSideMove = -flSinRotation;
-	}
-	else if (type == 0 && iTickCount%2==0) {
-		pUserCmd->flForwardMove = 0;
-		pUserCmd->flSideMove = pUserCmd->flSideMove /2;
-		//L_PRINT(LOG_INFO) << "early ";
-	}
+	pUserCmd->flForwardMove = flCosRotation;
+	pUserCmd->flSideMove = -flSinRotation;
+
 
 }
 
@@ -296,7 +290,7 @@ int CalculateAutisticHitchance() {
 	if (autisticHs < 0) autisticHs = 0;
 	if (SDK::pData->WeaponType == WEAPONTYPE_SNIPER_RIFLE) 
 		autisticHs -= 5;
-
+	//L_PRINT(LOG_INFO) << "hitch_val: " << autisticHs;
 	return autisticHs;
 }
 
@@ -310,23 +304,23 @@ void ActionFire() {
 	TriggerMousePress();
 }
 
-void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
-	static float revolverPrepareTime = 0.1f;
-	static float readyTime;
-
-	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
-		return;
-
-	if (!readyTime)
-		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
-
-	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
-
-	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
-		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
-	else
-		readyTime = 0.0f;
-}
+//void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
+//	static float revolverPrepareTime = 0.1f;
+//	static float readyTime;
+//
+//	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
+//		return;
+//
+//	if (!readyTime)
+//		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
+//
+//	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
+//
+//	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
+//		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
+//	else
+//		readyTime = 0.0f;
+//}
 
 Timer myTimer;
 
@@ -350,7 +344,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-0.1f, 0.1f);
+	std::uniform_real_distribution<float> dis(-0.05f, 0.05f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
@@ -361,7 +355,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	bool isPawned = false;
 	bool isPenitration = false;
 	bool isBaim = false;
-	std::vector<std::uint32_t> cHitboxes ={ HEAD, STOMACH, CENTER }; //{ HEAD, STOMACH, CENTER };
+	std::vector<std::uint32_t> cHitboxes ={ HEAD, CENTER }; //{ HEAD, STOMACH, CENTER };
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -521,7 +515,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	}*/
 	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 
-	float hitch_val = CalculateAutisticHitchance();
+	
 	/*if (speed > 180)
 		return;*/
 	// Point at them
@@ -536,12 +530,15 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	// Find the change in angles
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
+	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
+	//L_PRINT(LOG_INFO) << "dist: " << GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
+
 	if (C_GET(bool, Vars.bAutoFire)|| C_GET(float, Vars.flSmoothing)<3) {
-		vNewAngles.x = vNewAngles.x - 0.15f;
+		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);
 	}
 	else {
 		if (SDK::pData->WeaponType != WEAPONTYPE_SNIPER_RIFLE && SDK::pData->WeaponType != WEAPONTYPE_SHOTGUN) {
-			vNewAngles.x = vNewAngles.x + 0.2;
+			vNewAngles.x = vNewAngles.x + 2.f * (60.f / distance_vec);
 		}
 		else {
 			vNewAngles.x = vNewAngles.x + Vars.flSmoothing / 20;
@@ -556,6 +553,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	/*if (ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn) < C_GET(float, Vars.fHitChance))
 		return;*/
 
+	float hitch_val = CalculateAutisticHitchance();
+	
 	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
 		if (hitch_val >= hit_chnce) {
 			if (C_GET(bool, Vars.bAutoFire)) {

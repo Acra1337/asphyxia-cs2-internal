@@ -341,6 +341,9 @@
     <ClInclude Include="sdigameresourceservice.h">
       <Filter>sdk\interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\utilities\eventshandler.h" />
+    <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\dependencies\imgui\imgui.cpp">
@@ -468,5 +471,7 @@
     </ClCompile>
     <ClCompile Include="core\сlient.cpp" />
     <ClCompile Include="sdk\datatypes\usercmd.cpp" />
+    <ClCompile Include="sdk\utilities\eventshandler.cpp" />
+    <ClCompile Include="sdk\interfaces\cgameeventmanager.cpp" />
   </ItemGroup>
 </Project>

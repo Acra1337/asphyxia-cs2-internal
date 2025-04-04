@@ -33,6 +33,7 @@
 
 // used: product version
 #include "sdk/interfaces/iengineclient.h"
+#include "sdk/utilities/eventshandler.h"
 
 bool CORE::GetWorkingPath(wchar_t* wszDestination)
 {
@@ -164,6 +165,12 @@ static bool Setup(HMODULE hModule)
 		return false;
 	}
 	L_PRINT(LOG_NONE) << CS_XOR("hooks initialization completed");
+
+	if (!GameEvents->Intilization()) {
+		L_PRINT(LOG_NONE) << L::SetColor(LOG_COLOR_FORE_RED | LOG_COLOR_FORE_INTENSITY) << CS_XOR("failed to add event listeners");
+		CS_ASSERT(false);
+		return false;
+	}
 
 	// setup values to save/load cheat variables into/from files and load default configuration
 	if (!C::Setup(CS_XOR(CS_CONFIGURATION_DEFAULT_FILE_NAME)))
