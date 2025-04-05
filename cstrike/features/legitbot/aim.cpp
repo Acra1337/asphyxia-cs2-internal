@@ -610,8 +610,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		double W_0 = 30;
 		double M_0 = 15;
 		double D_0 = 1;
-		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) + randomValue)), 
-			static_cast<float>(((vNewAngles.y) + randomValue)),
+		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) )), 
+			static_cast<float>(((vNewAngles.y))),
 			G_0, W_0, M_0, D_0);
 
 		pViewAngles->x += result_aim.first/ flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil
@@ -619,8 +619,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	}
 	else {
 		// Apply smoothing and set angles
-		pViewAngles->x += (vNewAngles.x - aimPunch.x) / flSmoothing + randomValue;// minus AimPunch angle to counteract recoil
-		pViewAngles->y += (vNewAngles.y - aimPunch.y) / flSmoothing + randomValue;
+		pViewAngles->x += (vNewAngles.x - aimPunch.x) / flSmoothing;// minus AimPunch angle to counteract recoil
+		pViewAngles->y += (vNewAngles.y - aimPunch.y) / flSmoothing;
 	}
 	pViewAngles->Normalize();
 	//L_PRINT(LOG_INFO) << "aimPunch.y" << aimPunch.y;
