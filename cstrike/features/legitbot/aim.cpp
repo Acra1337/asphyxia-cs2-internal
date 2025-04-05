@@ -51,22 +51,25 @@ float GetDistance(const Vector_t& pos1, const Vector_t& pos2) {
 	Vector_t delta = static_cast<Vector_t>(pos1) - static_cast<Vector_t>(pos2);
 	return Length(delta);
 }
+
+
 TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, double G_0, double W_0, double M_0, double D_0) {
-	double current_x = start_x;
-	double current_y = start_y;
+	int current_x = start_x;
+	int current_y = start_y;
 	double v_x = 0, v_y = 0, W_x = 0, W_y = 0;
 
 	while (1) {
-		double dist = sqrt(pow(dest_x - current_x, 2) + pow(dest_y - current_y, 2));
-		if (dist < 0.01) {
+		double dist = sqrt(pow(dest_x - start_x, 2) + pow(dest_y - start_y, 2))*3;
+		/*if (dist < 0.01) {
 			return { dest_x , dest_y };
-		}
+			break;
+		}*/
 
 		double W_mag = fmin(W_0, dist);
 
 		if (dist >= D_0) {
-			W_x = W_x / sqrt3 + (((static_cast<float>(rand()) / RAND_MAX)) - 0.5) * W_mag / sqrt5;
-			W_y = W_y / sqrt3 + (((static_cast<float>(rand()) / RAND_MAX)) - 0.5) * W_mag / sqrt5;
+			W_x = W_x / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
+			W_y = W_y / sqrt3 + ((2.0 * 0.5f + (static_cast<float>(rand()) / RAND_MAX) * 0.5f) - 1) * W_mag / sqrt5;
 		}
 		else {
 			W_x /= sqrt3;
@@ -79,8 +82,8 @@ TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, doubl
 			}
 		}
 
-		v_x += W_x + G_0 * (dest_x - current_x) / dist;
-		v_y += W_y + G_0 * (dest_y - current_y) / dist;
+		v_x += W_x + G_0 * (dest_x - start_x) / dist;
+		v_y += W_y + G_0 * (dest_y - start_y) / dist;
 
 		double v_mag = sqrt(v_x * v_x + v_y * v_y);
 		if (v_mag > M_0) {
@@ -89,10 +92,10 @@ TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, doubl
 			v_y = (v_y / v_mag) * v_clip;
 		}
 
-		// Обновляем текущую позицию
-		current_x += v_x;
-		current_y += v_y;
+		TwoFloats result = { v_x / 5, v_y / 5 };
+		return result;
 	}
+
 }
 
 class Timer {
@@ -202,32 +205,21 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 		return;
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
 		return;
-	;
-	//pUserCmd->flSideMove = 0.0f;
-	//pUserCmd->flForwardMove = SDK::LocalPawn->GetVecVelocity().Length2D() > 20.0f ? 1.0f : 0.0f;
-	/*float multipler = 0;
-	iTickCount++;*/
-	//I::Input->nAttackStartHistoryIndex1 = 0;
-	//I::Input->pInputMessage.iPlayerTickCount = iTickCount;
-	//pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
-	//pUserCmd->SetBits(BASE_BITS_LEFTMOVE);
-	/*float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
-	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
 
-	float flCosRotation = std::cos(flRotation);
-	float flSinRotation = std::sin(flRotation);*/
+	pUserCmd->SetBits(BASE_BITS_FORWARDMOVE);
+	pUserCmd->SetBits(BASE_BITS_LEFTMOVE);
 
 	float flYaw = SDK::LocalPawn->GetVecVelocity().ToAngles().y + 180.0f;
-	float flRotation = M_DEG2RAD(pUserCmd->pViewAngles->angValue.y - flYaw);
+	float flRotation = M_DEG2RAD(SDK::pData->ViewAngle.y - flYaw);
 
 	float flCosRotation = std::cos(flRotation);
 	float flSinRotation = std::sin(flRotation);
 
-	/*float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;*/
+	float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 		
-	pUserCmd->flForwardMove = flCosRotation;
-	pUserCmd->flSideMove = -flSinRotation;
+	pUserCmd->flForwardMove = flNewForwardMove;
+	pUserCmd->flSideMove = -flNewSideMove;
 
 
 }
@@ -352,7 +344,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> dis(-1.3f, 1.3f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
@@ -517,6 +509,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 			}
 		}
 		else {
+			vecBestPosition = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(3);
 			Damage = 0;
 		}
 
@@ -592,11 +585,11 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 1.0f && abs(static_cast<float>(vNewAngles.y)) < 1.0f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.8f && abs(static_cast<float>(vNewAngles.y)) < 0.8f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
 		flSmoothing = 1.0f;
 	}
-	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.3f) {
-		flSmoothing = 1.3f;
+	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.6f) {
+		flSmoothing = 1.6f;
 	}
 	else{
 		flSmoothing = C_GET(float, Vars.flSmoothing);
@@ -604,14 +597,16 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	}
 
+	pUserCmd->pViewAngles->SetBits(EBaseCmdBits::BASE_BITS_VIEWANGLES);
+
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
 	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
-		double G_0 = 14;
-		double W_0 = 30;
-		double M_0 = 15;
-		double D_0 = 1;
-		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>(((vNewAngles.x ) )), 
-			static_cast<float>(((vNewAngles.y))),
+		double G_0 = 8;
+		double W_0 = 20;
+		double M_0 = 10;
+		double D_0 = 2;
+		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>((vNewAngles.x )*10 ), 
+			static_cast<float>((vNewAngles.y)*10),
 			G_0, W_0, M_0, D_0);
 
 		pViewAngles->x += result_aim.first/ flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil
