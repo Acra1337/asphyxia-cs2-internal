@@ -216,11 +216,16 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	float flSinRotation = std::sin(flRotation);
 
 	//float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-	//float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
+	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 		
-	pUserCmd->flForwardMove = flCosRotation;
-	pUserCmd->flSideMove = -flSinRotation;
-
+	pUserCmd->flForwardMove = 0;
+	if (flSinRotation < 0.3) {
+		pUserCmd->flSideMove = -flSinRotation;
+	}
+	else {
+		pUserCmd->flSideMove = 0;
+	}
+	//L_PRINT(LOG_INFO) << "flNewSideMove: " << flSinRotation;
 
 }
 
@@ -304,23 +309,23 @@ void ActionFire() {
 	TriggerMousePress();
 }
 
-void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
-	static float revolverPrepareTime = 0.1f;
-	static float readyTime;
-
-	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
-		return;
-
-	if (!readyTime)
-		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
-
-	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
-
-	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
-		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
-	else
-		readyTime = 0.0f;
-}
+//void AutoRevolver(CBaseUserCmdPB* pUserCmd) {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
+//	static float revolverPrepareTime = 0.1f;
+//	static float readyTime;
+//
+//	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
+//		return;
+//
+//	if (!readyTime)
+//		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
+//
+//	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
+//
+//	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
+//		pUserCmd->pInButtonState->nValue |= IN_ATTACK;
+//	else
+//		readyTime = 0.0f;
+//}
 
 Timer myTimer;
 
@@ -433,7 +438,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		if (pBoneCache == nullptr)
 			continue;
 
-		AutoRevolver();
+		//AutoRevolver(pUserCmd);
 
 		const int iBone = 6; // You may wish to change this dynamically but for now let's target the head.
 

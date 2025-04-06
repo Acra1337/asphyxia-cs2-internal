@@ -488,6 +488,21 @@ void T::Visuals()
 				ImGui::HotKey(CS_XOR("Thirdperson key"), &C_GET(KeyBind_t, Vars.nThirdPersonKey));
 				ImGui::SliderInt(CS_XOR("Thirdperson distance"), &C_GET(int, Vars.flThirdPersonDistance), 30, 150);
 			}
+			
+
+			ImGui::Checkbox("Enable Modulation", &C_GET(bool, Vars.bWorldModulation));
+			if (C_GET(bool, Vars.bWorldModulation))
+			{
+				ImGui::ColorEdit4(CS_XOR("World color"),  &C_GET(Color_t, Vars.colWorld), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
+				ImGui::ColorEdit4(CS_XOR("Light Color"),  &C_GET(Color_t, Vars.colLightning), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
+				ImGui::ColorEdit4(CS_XOR("Sky Color"),  &C_GET(Color_t, Vars.colSky), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
+				ImGui::ColorEdit4(CS_XOR("Sun Color"),  &C_GET(Color_t, Vars.colClouds), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
+				ImGui::SliderFloat(CS_XOR("Intensive"),  &C_GET(float, Vars.flLightingIntensity), 0, 10);
+				ImGui::SliderFloat(CS_XOR("Exposure"), &C_GET(float, Vars.flExposure), 0, 100);
+			}
+
+
+
 			ImGui::PopStyleVar();
 		}
 		ImGui::EndChild();

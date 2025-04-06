@@ -81,6 +81,15 @@ struct Variables_t
 	C_ADD_VARIABLE(int, flThirdPersonDistance, 90);
 	C_ADD_VARIABLE(KeyBind_t, nThirdPersonKey, 0);
 
+	C_ADD_VARIABLE(Color_t, colSunClouds, Color_t(255, 255, 255))
+	C_ADD_VARIABLE(Color_t, colClouds, Color_t(255, 255, 255))
+	C_ADD_VARIABLE(bool, bWorldModulation, false);
+	C_ADD_VARIABLE(Color_t, colWorld, Color_t(255, 255, 255));
+	C_ADD_VARIABLE(Color_t, colSky, Color_t(255, 255, 255));
+	C_ADD_VARIABLE(Color_t, colLightning, Color_t(255, 255, 255));
+	C_ADD_VARIABLE(float, flLightingIntensity, 1.f);
+	C_ADD_VARIABLE(float, flExposure, 90.f);
+
 #pragma endregion
 
 #pragma region variables_misc
