@@ -167,7 +167,7 @@
     <ClInclude Include="features\visuals\overlay.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
-    <ClInclude Include="sdk\utilities\eventshandler.h" />
+    <ClInclude Include="sdk\utilities\eventshandler.hpp" />
     <ClInclude Include="sdk\utilities\penetration.h" />
     <ClInclude Include="sdigameresourceservice.h" />
     <ClInclude Include="sdk\datatypes\utlstringtoken.h" />

@@ -268,6 +268,7 @@ public:
 	std::int32_t nAttack1StartHistoryIndex;
 	std::int32_t nAttack2StartHistoryIndex;
 
+
 	// @note: this function is used to check if the bits are set and set them if they are not
 	void CheckAndSetBits(std::uint32_t nBits)
 	{

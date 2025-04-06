@@ -478,11 +478,11 @@ bool D::Setup(HWND hWnd, ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	}
 
 	imVerdanaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_Bold;
-	FONT::pExtra = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path1.c_str()), 14.f, &imVerdanaConfig, io.Fonts->GetGlyphRangesCyrillic());
+	FONT::pExtra = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path1.c_str()), 12.f, &imVerdanaConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 	ImFontConfig imTahomaConfig;
 	imTahomaConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
-	FONT::pVisual = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path2.c_str()), 14.f, &imTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());
+	FONT::pVisual = io.Fonts->AddFontFromFileTTF(CS_XOR(get_font_path2.c_str()), 12.f, &imTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 	io.Fonts->FontBuilderFlags = ImGuiFreeTypeBuilderFlags_LightHinting;
 	bInitialized = io.Fonts->Build();

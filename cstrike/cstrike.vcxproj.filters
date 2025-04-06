@@ -341,7 +341,7 @@
     <ClInclude Include="sdigameresourceservice.h">
       <Filter>sdk\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="sdk\utilities\eventshandler.h" />
+    <ClInclude Include="sdk\utilities\eventshandler.hpp" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

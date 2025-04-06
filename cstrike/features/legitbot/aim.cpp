@@ -215,11 +215,11 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	float flCosRotation = std::cos(flRotation);
 	float flSinRotation = std::sin(flRotation);
 
-	float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
-	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
+	//float flNewForwardMove = flCosRotation * SDK::BaseCmd->flForwardMove - flSinRotation * SDK::BaseCmd->flSideMove;
+	//float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 		
-	pUserCmd->flForwardMove = flNewForwardMove;
-	pUserCmd->flSideMove = -flNewSideMove;
+	pUserCmd->flForwardMove = flCosRotation;
+	pUserCmd->flSideMove = -flSinRotation;
 
 
 }
@@ -575,17 +575,9 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	float hitch_val = CalculateAutisticHitchance();
 	
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
-		if (hitch_val >= hit_chnce) {
-			if (C_GET(bool, Vars.bAutoFire)) {
-				ActionFire();
-				myTimer.Trigger();
-				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
-			}
-		}
-	}
+	
 
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.8f && abs(static_cast<float>(vNewAngles.y)) < 0.8f && C_GET(bool, Vars.bAutoFire) && hitch_val >= hit_chnce) {
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.8f && abs(static_cast<float>(vNewAngles.y)) < 0.8f && C_GET(bool, Vars.bAutoFire) && hitch_val-10 >= hit_chnce) {
 		flSmoothing = 1.0f;
 	}
 	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.6f) {
@@ -618,7 +610,20 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		pViewAngles->y += (vNewAngles.y - aimPunch.y) / flSmoothing;
 	}
 	pViewAngles->Normalize();
+
+
+	pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
+	vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
 	//L_PRINT(LOG_INFO) << "aimPunch.y" << aimPunch.y;
+	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
+		if (hitch_val >= hit_chnce) {
+			if (C_GET(bool, Vars.bAutoFire)) {
+				ActionFire();
+				myTimer.Trigger();
+				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
+			}
+		}
+	}
 
 }
 

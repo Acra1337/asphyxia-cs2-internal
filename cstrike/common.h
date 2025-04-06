@@ -33,6 +33,8 @@
 #define MATERIAL_SYSTEM2_DLL CS_XOR(L"materialsystem2.dll")
 #define MATCHMAKING_DLL CS_XOR(L"matchmaking.dll")
 #define RESOURCESYSTEM_DLL CS_XOR(L"resourcesystem.dll")
+#define SOUND_DLL CS_XOR(L"soundsystem.dll")
+
 /*
   * define to specify default string encryption
   */
