@@ -304,23 +304,23 @@ void ActionFire() {
 	TriggerMousePress();
 }
 
-//void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
-//	static float revolverPrepareTime = 0.1f;
-//	static float readyTime;
-//
-//	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
-//		return;
-//
-//	if (!readyTime)
-//		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
-//
-//	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
-//
-//	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
-//		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
-//	else
-//		readyTime = 0.0f;
-//}
+void AutoRevolver() {								//Нужно будет добавить если nButtons не вак детект и вернуть норм автофаер
+	static float revolverPrepareTime = 0.1f;
+	static float readyTime;
+
+	if (!SDK::pData->ItemDefinitionIndex == WEAPON_R8_REVOLVER)
+		return;
+
+	if (!readyTime)
+		readyTime = I::GlobalVars->flCurrentTime + revolverPrepareTime;
+
+	const auto ticksToReady = TIME_TO_TICKS(readyTime - I::GlobalVars->flCurrentTime - 0.5/*- interfaces::Engine->GetNetChannelInfo(0)->GetLatency(FLOW_OUTGOING)*/);
+
+	if (ticksToReady > 0 && ticksToReady <= TIME_TO_TICKS(revolverPrepareTime))
+		SDK::UserCmd->nButtons.nValue |= IN_ATTACK;
+	else
+		readyTime = 0.0f;
+}
 
 Timer myTimer;
 
@@ -432,6 +432,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		Matrix2x4_t* pBoneCache = pSkeleton->pBoneCache;
 		if (pBoneCache == nullptr)
 			continue;
+
+		AutoRevolver();
 
 		const int iBone = 6; // You may wish to change this dynamically but for now let's target the head.
 
