@@ -52,18 +52,22 @@ float GetDistance(const Vector_t& pos1, const Vector_t& pos2) {
 	return Length(delta);
 }
 
-
+float GetSpeed(const Vector_t& velocity) {
+	return std::sqrt(velocity.x * velocity.x +
+		velocity.y * velocity.y +
+		velocity.z * velocity.z);
+}
 TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, double G_0, double W_0, double M_0, double D_0) {
 	int current_x = start_x;
 	int current_y = start_y;
 	double v_x = 0, v_y = 0, W_x = 0, W_y = 0;
 
 	while (1) {
-		double dist = sqrt(pow(dest_x - start_x, 2) + pow(dest_y - start_y, 2))*3;
-		/*if (dist < 0.01) {
+		double dist = sqrt(pow(dest_x - start_x, 2) + pow(dest_y - start_y, 2)) * 3;
+		if (dist < 0.1) {
 			return { dest_x , dest_y };
 			break;
-		}*/
+		}
 
 		double W_mag = fmin(W_0, dist);
 
@@ -92,7 +96,7 @@ TwoFloats wind_mouse(int start_x, int start_y, float dest_x, float dest_y, doubl
 			v_y = (v_y / v_mag) * v_clip;
 		}
 
-		TwoFloats result = { v_x / 5, v_y / 5 };
+		TwoFloats result = { v_x, v_y };
 		return result;
 	}
 
@@ -200,7 +204,7 @@ unsigned int iTickCount = 0;
 inline double DegToRad(double degrees) {
 	return degrees * (3.14159265 / 180.0);
 }
-void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
+void AutoStop(CBaseUserCmdPB* pUserCmd, int speed) {
 	if (SDK::UserCmd->nButtons.nValue & IN_DUCK)
 		return;
 	if (!(SDK::LocalPawn->GetFlags() & FL_ONGROUND))
@@ -219,7 +223,7 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int type) {//0 early, 1 full
 	float flNewSideMove = flSinRotation * SDK::BaseCmd->flForwardMove + flCosRotation * SDK::BaseCmd->flSideMove;
 		
 	pUserCmd->flForwardMove = 0;
-	if (flSinRotation < 0.3) {
+	if (abs(speed) > 10) {
 		pUserCmd->flSideMove = -flSinRotation;
 	}
 	else {
@@ -329,6 +333,7 @@ void ActionFire() {
 
 Timer myTimer;
 
+short ready = 0;
 void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLocalPawn, CCSPlayerController* pLocalController)
 {
 	
@@ -351,7 +356,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	Vector_t vecBestPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<float> dis(-1.3f, 1.3f);
+	std::uniform_real_distribution<float> dis(-0.50f, 0.50f);
 	float randomValue = dis(gen);
 	// Entity loop
 	const int iHighestIndex = 32;//126
@@ -492,11 +497,11 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 					continue;
 
 				int currentBone = iBone;
-				float currentDamage = static_cast<float>(AutoWall::mData.flDamage) - 2;
+				float currentDamage = static_cast<float>(AutoWall::mData.flDamage) - 5;
 
 				//L_PRINT(LOG_INFO) << "bone: " << currentBone << " dmg: " << currentDamage << " hp: " << flHealthFactor;
 				bool isTargetEntity = (trace.m_pHitEntity == pPawn);
-				bool isDamageSufficient = (currentDamage >= VarminDamage || currentDamage >= flHealthFactor && currentDamage > flBestDamage);
+				bool isDamageSufficient = (currentDamage >= VarminDamage && currentDamage >= flHealthFactor || currentDamage > flBestDamage);
 
 				if (!(isTargetEntity || isDamageSufficient))
 					continue;
@@ -543,8 +548,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		}
 	}*/
 	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
-
-	
+	float speed = GetSpeed(velocity);
 	/*if (speed > 180)
 		return;*/
 	// Point at them
@@ -552,7 +556,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	float hit_chnce = C_GET(float, Vars.fHitChance);
 
 	if (C_GET(bool, Vars.bAutoStop)) {
-		AutoStop(pUserCmd, 1);
+		AutoStop(pUserCmd, speed);
 	}
 
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
@@ -584,33 +588,59 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 	float hitch_val = CalculateAutisticHitchance();
 	
-	
-
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.8f && abs(static_cast<float>(vNewAngles.y)) < 0.8f && C_GET(bool, Vars.bAutoFire) && hitch_val-10 >= hit_chnce) {
-		flSmoothing = 1.0f;
+	//L_PRINT(LOG_INFO) << "aimPunch.y" << aimPunch.y;
+	if (abs(static_cast<float>(vNewAngles.x)) < 3.f * (90.f / distance_vec) && abs(static_cast<float>(vNewAngles.y)) < 3.f * (90.f / distance_vec)) {
+		if (hitch_val >= hit_chnce) {
+			if (C_GET(bool, Vars.bAutoFire)) {
+				if (ready >= 1) {		//Без комментариев, я рот ебал этой залупы, ну оно блять 8 из 10 срёт в никуда на преф, позже как-то собраться и перенести предикт надо.
+					ActionFire();		/*TODO*/
+					myTimer.Trigger();
+					ready = -1;
+				}
+				ready++;
+				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
+			}
+			else {
+				ready = 0;
+			}
+		}
 	}
-	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.6f) {
-		flSmoothing = 1.6f;
+	
+	if (abs(static_cast<float>(vNewAngles.x)) < 4.0f * (90.f / distance_vec) && abs(static_cast<float>(vNewAngles.y)) < 4.0f * (90.f / distance_vec) && C_GET(bool, Vars.bAutoFire) && hitch_val+10 >= hit_chnce) {
+		flSmoothing = 1.0f;
+		//L_PRINT(LOG_INFO) << "smooth 0";
+	}
+	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.5f) {
+		flSmoothing = 1.5f;
 	}
 	else{
 		flSmoothing = C_GET(float, Vars.flSmoothing);
-		randomValue = 0;
-
 	}
 
 	pUserCmd->pViewAngles->SetBits(EBaseCmdBits::BASE_BITS_VIEWANGLES);
 
 	auto aimPunch = GetRecoil(pLocalPawn); //get AimPunch angles
-	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 2.0f && abs(static_cast<float>(vNewAngles.y)) > 2.0f )) {
-		double G_0 = 8;
-		double W_0 = 20;
-		double M_0 = 10;
-		double D_0 = 2;
-		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>((vNewAngles.x )*10 ), 
-			static_cast<float>((vNewAngles.y)*10),
+	if (C_GET(bool, Vars.bHumanize) && C_GET(bool, Vars.bAutoFire) && flSmoothing > 1.1f && (abs(static_cast<float>(vNewAngles.x)) > 4.5f * (90.f / distance_vec) || abs(static_cast<float>(vNewAngles.y)) > 4.5f * (90.f / distance_vec))) {
+
+		double G_0 = 20;
+		double W_0 = 18;
+		double M_0 = 6;
+		double D_0 = 0;
+		TwoFloats result_aim = wind_mouse(0, 0, static_cast<float>((vNewAngles.x)),
+			static_cast<float>((vNewAngles.y)),
 			G_0, W_0, M_0, D_0);
 
-		pViewAngles->x += result_aim.first/ flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil
+		float vNewLength = std::sqrt(vNewAngles.x * vNewAngles.x + vNewAngles.y * vNewAngles.y);
+
+		float resultLength = std::sqrt(result_aim.first * result_aim.first + result_aim.second * result_aim.second);
+
+		if (resultLength > vNewLength) {
+			float scale = vNewLength / resultLength;
+			result_aim.first *= scale;
+			result_aim.second *= scale;
+		}
+
+		pViewAngles->x += result_aim.first / flSmoothing - aimPunch.x; // minus AimPunch angle to counteract recoil
 		pViewAngles->y += result_aim.second / flSmoothing - aimPunch.y;
 	}
 	else {
@@ -620,19 +650,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	}
 	pViewAngles->Normalize();
 
-
-	pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
-	vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
-	//L_PRINT(LOG_INFO) << "aimPunch.y" << aimPunch.y;
-	if (abs(static_cast<float>(vNewAngles.x)) < 0.35f && abs(static_cast<float>(vNewAngles.y)) < 0.28f) {
-		if (hitch_val >= hit_chnce) {
-			if (C_GET(bool, Vars.bAutoFire)) {
-				ActionFire();
-				myTimer.Trigger();
-				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
-			}
-		}
-	}
-
+	
+	//L_PRINT(LOG_INFO) << "vNewAngles.x: " << abs(static_cast<float>(vNewAngles.x))<< " dist: "<< distance_vec;
 }
 

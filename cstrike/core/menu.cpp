@@ -366,8 +366,8 @@ void T::LegitBot()
 			}
 
 			ImGui::Checkbox(CS_XOR("enable##aimbot"), &C_GET(bool, Vars.bLegitbot));
-			ImGui::SliderFloat(CS_XOR("aim range"), &C_GET(float, Vars.flAimRange), 1.f, 135.f);
-			ImGui::SliderFloat(CS_XOR("smoothing"), &C_GET(float, Vars.flSmoothing), 1.f, 15.f);
+			ImGui::SliderFloat(CS_XOR("aim range"), &C_GET(float, Vars.flAimRange), 1.f, 30);
+			ImGui::SliderFloat(CS_XOR("smoothing"), &C_GET(float, Vars.flSmoothing), 1.f, 30.f);
 
 			ImGui::NewLine();
 			// Key
@@ -395,7 +395,7 @@ void T::LegitBot()
 			if (C_GET(bool, Vars.bAutoFire))
 			{
 				ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
-				ImGui::Checkbox(CS_XOR("Humanize"), &C_GET(bool, Vars.bHumanize));
+				ImGui::Checkbox(CS_XOR("Randomize aim"), &C_GET(bool, Vars.bHumanize));
 			}
 			ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
 			ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
