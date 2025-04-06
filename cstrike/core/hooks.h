@@ -10,6 +10,7 @@
 // used: viewmatrix_t
 #include "../sdk/datatypes/matrix.h"
 
+#include "../sdk/entity.h"
 namespace VTABLE
 {
 	namespace D3D
@@ -84,6 +85,10 @@ namespace H
 	__int64* CS_FASTCALL LevelInit(void* pClientModeShared, const char* szNewMap);
 	__int64 CS_FASTCALL LevelShutdown(void* pClientModeShared);
 	void CS_FASTCALL OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup);
+	void* CS_FASTCALL UpdateSceneObject(C_AggregateSceneObject* object, void* unk);
+	void* UpdateSkyBox(C_EnvSky* sky);
+	void* DrawLightScene(void* a1, C_SceneLightObject* a2, __int64 a3);
+	void* UpdatePostProccesing(C_PostProcessingVolume* a1, int a2);
 	void CS_FASTCALL DrawObject(void* pAnimatableSceneObjectDesc, void* pDx11, CMeshData* arrMeshDraw, int nDataCount, void* pSceneView, void* pSceneLayer, void* pUnk, void* pUnk2);
 	void* IsRelativeMouseMode(void* pThisptr, bool bActive);
 
@@ -111,6 +116,11 @@ namespace H
 	inline CBaseHookObject<decltype(&OverrideView)> hkOverrideView = {};
 
 	inline CBaseHookObject<decltype(&DrawObject)> hkDrawObject = {};
+	inline CBaseHookObject<decltype(&UpdateSceneObject)> hkUpdateSceneObject = {};
+	inline CBaseHookObject<decltype(&UpdateSkyBox)> hkUpdateSkyBox = {};
+	inline CBaseHookObject<decltype(&DrawLightScene)> hkDrawLightScene = {};
+	inline CBaseHookObject<decltype(&UpdatePostProccesing)> hkUpdatePostProccesing = {};
+
 
 	inline CBaseHookObject<decltype(&DrawFlashlight)> hkDrawFlashlight = {};
 	inline CBaseHookObject<decltype(&DrawSmokeArray)> hkDrawSmokeArray = {};

@@ -17,6 +17,140 @@ enum
 	COLOR_B = 2,
 	COLOR_A = 3
 };
+class ByteColor
+{
+public:
+	unsigned char r, g, b;
+
+	ByteColor(float _r = 0, float _g = 0, float _b = 0)
+	{
+		r = static_cast<unsigned char>(_r);
+		g = static_cast<unsigned char>(_g);
+		b = static_cast<unsigned char>(_b);
+	}
+
+	ByteColor operator+(ByteColor color)
+	{
+		return ByteColor(r + color.r, g + color.g, b + color.b);
+	}
+
+	ByteColor operator+(unsigned char n)
+	{
+		return ByteColor(r + n, g + n, b + n);
+	}
+
+	ByteColor operator+=(ByteColor color)
+	{
+		r += color.r;
+		g += color.g;
+		b += color.b;
+
+		return *this;
+	}
+
+	ByteColor operator+=(unsigned char n)
+	{
+		r += n;
+		g += n;
+		b += n;
+
+		return *this;
+	}
+
+	ByteColor operator-(ByteColor color)
+	{
+		return ByteColor(r - color.r, g - color.g, b - color.b);
+	}
+
+	ByteColor operator-(unsigned char n)
+	{
+		return ByteColor(r - n, g - n, b - n);
+	}
+
+	ByteColor operator-=(ByteColor color)
+	{
+		r -= color.r;
+		g -= color.g;
+		b -= color.b;
+
+		return *this;
+	}
+
+	ByteColor operator-=(unsigned char n)
+	{
+		r -= n;
+		g -= n;
+		b -= n;
+
+		return *this;
+	}
+
+	ByteColor operator/(ByteColor color)
+	{
+		return ByteColor(r / color.r, g / color.g, b / color.b);
+	}
+
+	ByteColor operator/(unsigned char n)
+	{
+		return ByteColor(r / n, g / n, b / n);
+	}
+
+	ByteColor operator/=(ByteColor color)
+	{
+		r /= color.r;
+		g /= color.g;
+		b /= color.b;
+
+		return *this;
+	}
+
+	ByteColor operator/=(unsigned char n)
+	{
+		r /= n;
+		g /= n;
+		b /= n;
+
+		return *this;
+	}
+
+	ByteColor operator*(ByteColor color)
+	{
+		return ByteColor(r * color.r, g * color.g, b * color.b);
+	}
+
+	ByteColor operator*(unsigned char n)
+	{
+		return ByteColor(r * n, g * n, b * n);
+	}
+
+	ByteColor operator*=(ByteColor color)
+	{
+		r *= color.r;
+		g *= color.g;
+		b *= color.b;
+
+		return *this;
+	}
+
+	ByteColor operator*=(unsigned char n)
+	{
+		r *= n;
+		g *= n;
+		b *= n;
+
+		return *this;
+	}
+
+	bool operator==(ByteColor color)
+	{
+		return r == color.r && g == color.g && b == color.b;
+	}
+
+	bool operator!=(ByteColor color)
+	{
+		return !(*this == color);
+	}
+};
 
 struct ColorRGBExp32
 {
@@ -96,6 +230,15 @@ struct Color_t
 	}
 
 	/// @returns: copy of color with certain R/G/B/A component multiplied by given value
+	Color_t operator*(float n)
+	{
+		return Color_t(r * n, g * n, b * n, a * n);
+	}
+	ByteColor ToByte()
+	{
+		return ByteColor(r, g, b);
+	}
+	/// @returns: copy of color with certain R/G/B/A component changed to given value
 	template <std::size_t N>
 	[[nodiscard]] Color_t Multiplier(const float flValue) const
 	{

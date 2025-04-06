@@ -41,6 +41,7 @@
 
 // used: menu
 #include "menu.h"
+#include "../features/visuals/World.h"
 
 bool H::Setup()
 {
@@ -133,6 +134,13 @@ bool H::Setup()
 		return false;
 	L_PRINT(LOG_INFO) << CS_XOR("\"LevelInit\" hook has been created");
 
+	if (!hkUpdateSceneObject.Create(MEM::FindPattern(SCENESYSTEM_DLL, ("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 54 41 56 41 57 48 83 EC ? 4C 8B F9")), reinterpret_cast<void*>(&UpdateSceneObject)))
+		return false;
+	L_PRINT(LOG_INFO) << ("\"UpdateSceneObject Loaded\" hook has been created");
+
+	if (!hkUpdateSkyBox.Create(MEM::FindPattern(CLIENT_DLL, ("48 8B C4 48 89 58 18 48 89 70 20 55 57 41 54 41 55")), reinterpret_cast<void*>(&UpdateSkyBox)))
+		return false;
+	L_PRINT(LOG_INFO) << ("\"hkUpdateSkyBox Loaded\" hook has been created");
 	// @ida: ClientModeShared -> #STR: "map_shutdown"
 	if (!hkLevelShutdown.Create(MEM::FindPattern(CLIENT_DLL, CS_XOR("48 83 EC ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 45 33 C9 45 33 C0 48 8B 01 FF 50 ? 48 85 C0 74 ? 48 8B 0D ? ? ? ? 48 8B D0 4C 8B 01 41 FF 50 ? 48 83 C4")), reinterpret_cast<void*>(&LevelShutdown)))
 		return false;
@@ -388,6 +396,57 @@ void CS_FASTCALL H::OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup)
 	
 
 	oOverrideView(pClientModeCSNormal, pSetup);
+}
+
+
+void* CS_FASTCALL H::UpdateSceneObject(C_AggregateSceneObject* object, void* unk)
+{
+	const auto original = hkUpdateSceneObject.GetOriginal();
+	auto result = original(object, unk);
+
+
+
+	if (C_GET(bool, Vars.bWorldModulation))
+	{
+		Color_t colors = C_GET(Color_t, Vars.colWorld);
+
+		for (int i = 0; i < object->m_nCount; i++)
+		{
+			object->m_pData[i].r = colors.r;
+			object->m_pData[i].g = colors.g;
+			object->m_pData[i].b = colors.b;
+		}
+	}
+
+	return result;
+}
+void* H::UpdateSkyBox(C_EnvSky* sky)
+{
+	static auto original = hkUpdateSkyBox.GetOriginal();
+
+	g_world->skybox(sky);
+
+	return original(sky);
+}
+
+void* H::DrawLightScene(void* a1, C_SceneLightObject* a2, __int64 a3)
+{
+	static auto original = hkDrawLightScene.GetOriginal();
+
+	g_world->lighting(a2);
+
+	return original(a1, a2, a3);
+}
+
+void* H::UpdatePostProccesing(C_PostProcessingVolume* a1, int a2)
+{
+	static auto original = hkUpdatePostProccesing.GetOriginal();
+
+	original(a1, a2);
+
+	g_world->exposure(a1);
+
+	return original(a1, a2);
 }
 
 void CS_FASTCALL H::DrawObject(void* pAnimatableSceneObjectDesc, void* pDx11, CMeshData* arrMeshDraw, int nDataCount, void* pSceneView, void* pSceneLayer, void* pUnk, void* pUnk2)

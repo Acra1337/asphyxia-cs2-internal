@@ -344,6 +344,7 @@
     <ClInclude Include="sdk\utilities\eventshandler.hpp" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="features\visuals\World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\dependencies\imgui\imgui.cpp">
@@ -473,5 +474,6 @@
     <ClCompile Include="sdk\datatypes\usercmd.cpp" />
     <ClCompile Include="sdk\utilities\eventshandler.cpp" />
     <ClCompile Include="sdk\interfaces\cgameeventmanager.cpp" />
+    <ClCompile Include="features\visuals\World.cpp" />
   </ItemGroup>
 </Project>

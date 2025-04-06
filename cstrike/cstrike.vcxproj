@@ -165,6 +165,7 @@
     <ClInclude Include="features\visuals.h" />
     <ClInclude Include="features\visuals\chams.h" />
     <ClInclude Include="features\visuals\overlay.h" />
+    <ClInclude Include="features\visuals\World.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
     <ClInclude Include="sdk\utilities\eventshandler.hpp" />
@@ -242,6 +243,7 @@
     <ClCompile Include="core\сlient.cpp" />
     <ClCompile Include="features\legitbot.cpp" />
     <ClCompile Include="features\legitbot\aim.cpp" />
+    <ClCompile Include="features\visuals\World.cpp" />
     <ClCompile Include="sdk\datatypes\usercmd.cpp" />
     <ClCompile Include="sdk\interfaces\cgameeventmanager.cpp" />
     <ClCompile Include="sdk\utilities\eventshandler.cpp" />

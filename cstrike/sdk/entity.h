@@ -28,6 +28,7 @@
 
 
 
+
 using GameTime_t = std::float_t;
 using GameTick_t = std::int32_t;
 
@@ -211,7 +212,13 @@ public:
 	SCHEMA_ADD_FIELD(bool, HasHelmet, "CCSPlayer_ItemServices->m_bHasHelmet");
 	SCHEMA_ADD_FIELD(bool, HasHeavyArmor, "CCSPlayer_ItemServices->m_bHasHeavyArmor");
 };
-class CPlayer_CameraServices;
+class CPlayer_CameraServices
+{
+public:
+	SCHEMA_ADD_FIELD(CBaseHandle, m_PostProcessingVolumes, "CPlayer_CameraServices->m_PostProcessingVolumes");
+	SCHEMA_ADD_FIELD(Vector_t, ViewPunchAngle, "CPlayer_CameraServices->m_vecCsViewPunchAngle");
+
+};
 
 class CPlayer_WeaponServices
 {
@@ -501,4 +508,65 @@ public:
 	int nMask; //0x01E8
 	MEM_PAD(0x4); //0x01EC
 	Matrix2x4_t* pBoneCache; //0x01F0
+};
+
+
+class C_AggregateSceneObjectData
+{
+private:
+	char pad_0000[0x38]; // 0x0
+public:
+	std::uint8_t r; // 0x38
+	std::uint8_t g; // 0x39
+	std::uint8_t b; // 0x3A
+private:
+	char pad_0038[0x9];
+};
+class C_AggregateSceneObject
+{
+private:
+	char pad_0000[0x120];
+
+public:
+	int m_nCount; // 0x120
+private:
+	char pad_0120[0x4];
+
+public:
+	C_AggregateSceneObjectData* m_pData; // 0x128
+};
+
+
+class C_EnvSky
+{
+public:
+	SCHEMA_ADD_FIELD(bool, m_bStartDisabled, "C_EnvSky->m_bStartDisabled");
+	SCHEMA_ADD_FIELD(ByteColor, m_vTintColor, "C_EnvSky->m_vTintColor");
+	SCHEMA_ADD_FIELD(Color_t, m_vTintColorLightingOnly, "C_EnvSky->m_vTintColorLightingOnly");
+	SCHEMA_ADD_FIELD(float, m_flBrightnessScale, "C_EnvSky->m_flBrightnessScale");
+	SCHEMA_ADD_FIELD(int, m_nFogType, "C_EnvSky->m_nFogType");
+	SCHEMA_ADD_FIELD(float, m_flFogMinStart, "C_EnvSky->m_flFogMinStart");
+	SCHEMA_ADD_FIELD(float, m_flFogMinEnd, "C_EnvSky->m_flFogMinEnd");
+	SCHEMA_ADD_FIELD(float, m_flFogMaxStart, "C_EnvSky->m_flFogMaxStart");
+	SCHEMA_ADD_FIELD(float, m_flFogMaxEnd, "C_EnvSky->m_flFogMaxEnd");
+	SCHEMA_ADD_FIELD(bool, m_bEnabled, "C_EnvSky->m_bEnabled");
+};
+
+class C_SceneLightObject
+{
+public:
+	char pad_0000[0xE4]; // 0x0
+	float r; // 0xE4
+	float g; // 0xE4
+	float b; // 0xE4
+};
+
+class C_PostProcessingVolume
+{
+public:
+	SCHEMA_ADD_FIELD(bool, ExposureControl, "C_PostProcessingVolume->m_bExposureControl");
+	SCHEMA_ADD_FIELD(float, MinExposure, "C_PostProcessingVolume->m_flMinExposure");
+	SCHEMA_ADD_FIELD(float, MaxExposure, "C_PostProcessingVolume->m_flMaxExposure");
+	SCHEMA_ADD_FIELD(float, FadeSpeedUp, "C_PostProcessingVolume->m_flExposureFadeSpeedUp");
+	SCHEMA_ADD_FIELD(float, FadeSpeedDown, "C_PostProcessingVolume->m_flExposureFadeSpeedDown");
 };
