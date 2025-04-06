@@ -290,6 +290,7 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	SDK::LocalPawn = pLocalPawn;
 	SDK::WeaponBaseVData = pWeaponBaseVData;
 	SDK::WeaponBase = pWeaponBase;
+	SDK::isAlive = SDK::LocalPawn->GetHealth() > 0 && SDK::LocalPawn->GetLifeState() != ELifeState::LIFE_DEAD;
 
 	SDK::pData->ServerTime = TICKS_TO_TIME(pLocalController->GetTickBase());
 
@@ -351,9 +352,12 @@ __int64 CS_FASTCALL H::LevelShutdown(void* pClientModeShared)
 void CS_FASTCALL H::OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup)
 {
 	const auto oOverrideView = hkOverrideView.GetOriginal();
+	/*if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
+		return hkOverrideView.GetOriginal()(pClientModeCSNormal, pSetup);*/
 	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
-		return hkOverrideView.GetOriginal()(pClientModeCSNormal, pSetup);
-	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
+		return oOverrideView(pClientModeCSNormal, pSetup);
+
+	if (!SDK::isAlive)
 		return oOverrideView(pClientModeCSNormal, pSetup);
 
 	if (!SDK::LocalController || !SDK::LocalPawn)

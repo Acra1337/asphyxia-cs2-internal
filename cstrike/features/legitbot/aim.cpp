@@ -331,6 +331,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	float flSmoothing = 1.0f;
 	if (!IPT::IsKeyDown(C_GET(unsigned int, Vars.nLegitbotActivationKey)) && !C_GET(bool, Vars.bLegitbotAlwaysOn) || MENU::bMainWindowOpened == 1)
 		return;
+	if (!SDK::isAlive)
+		return
 	// Seed the random number generator
 
 	srand(time(NULL));
@@ -355,7 +357,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	bool isPawned = false;
 	bool isPenitration = false;
 	bool isBaim = false;
-	std::vector<std::uint32_t> cHitboxes ={ HEAD,STOMACH, CENTER }; //{ HEAD, STOMACH, CENTER };
+	std::vector<std::uint32_t> cHitboxes ={ HEAD,STOMACH, CENTER }; 
 	int final_bone = 0;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
