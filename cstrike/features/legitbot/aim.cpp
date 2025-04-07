@@ -473,7 +473,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 		// cast a ray from local player eye positon -> player head bone
 		// @note: would recommend checking for nullptrs
-		I::GameTraceManager->TraceShape(&ray, pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6), &filter, &trace);
+		I::GameTraceManager->TraceShape(&ray, pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(3), &filter, &trace);
 		// check if the hit entity is the one we wanted to check and if the trace end point is visible
 		float flCurrentDistance = GetAngularDistance(pUserCmd, vecPos, PredictionSystem->PredStorage.vecEyePos);
 		if (flCurrentDistance > C_GET(float, Vars.flAimRange))// Skip if this move out of aim range
@@ -481,7 +481,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
 		//	continue;
 		//Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
-		float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
+		float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6));
 		float VarminDamage = C_GET(float, Vars.flMinDamage);
 		if (C_GET(bool, Vars.bAutoWall)) {
 			const float flHealthFactor = pPawn->GetHealth();
@@ -523,20 +523,22 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 				if (isDamageSufficient) {
 					//vecPos = pBoneCache->GetOrigin(currentBone);
 					flBestDamage = currentDamage;
-					pTarget = pPlayer;
+					
 					flDistance = flCurrentDistance;
 					vecBestPosition = targetVec;
 					final_bone = iBone;
-
+					pTarget = pPlayer;
 					pTargetPawn = pPawn;
 					isPawned = true;
 				}
 				else if(!isDamageSufficient && currentDamage >= flBestDamage){
 					vecBestPosition = targetVec;
 				}
+				
 			}
 		}
 		else {
+			pTarget = pPlayer;
 			vecBestPosition = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(3);
 			Damage = 0;
 		}

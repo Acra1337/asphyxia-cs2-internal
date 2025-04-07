@@ -393,7 +393,7 @@ void CS_FASTCALL H::OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup)
 	if (SDK::pData->WeaponType == WEAPONTYPE_GRENADE)
 		SDK::pData->InThirdPerson = false;
 
-	if (SDK::pData->InThirdPerson && C_GET(bool, Vars.bThirdperson)) {
+	if (SDK::pData->InThirdPerson && C_GET(bool, Vars.bThirdperson) && SDK::LocalPawn->IsAlive()) {
 		QAngle_t angAdjustedCameraAngle = SDK::pData->ViewAngle;
 		angAdjustedCameraAngle.x *= -1;
 
