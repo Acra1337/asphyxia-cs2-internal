@@ -24,6 +24,19 @@
 #include <cmath>
 #include "../../sdk/utilities/engineprediction.h"
 
+Vector_t ExtrapolatePosition(Vector_t vecPosition, Vector_t vel) {
+	float ticks = 1.f;
+	const float intervalpertick = 1.f / 64.f;
+
+	INetChannelInfo* pNetChannelInfo = I::Engine->GetNetChannelInfo();
+	if (!pNetChannelInfo)
+		return vecPosition;
+
+	float magic = static_cast<float>((pNetChannelInfo->GetNetworkLatency() * 64.f) / 1000.f);
+
+	return vecPosition + (vel * intervalpertick * static_cast<float>(ticks)) + (vel * magic);
+}
+
 double sqrt3, sqrt5;
 
 void init_constants() {
@@ -475,8 +488,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 			for (auto& iBone : cHitboxes) {
 				AutoWall::mData.iHitGroup = iBone;
 				AutoWall::mData.pTargetPawn = pPawn;
-				AutoWall::mData.vecStartPos = pLocalPawn->GetEyePosition();
-				Vector_t targetVec = pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone);
+				AutoWall::mData.vecStartPos = ExtrapolatePosition(PredictionSystem->PredStorage.vecEyePos, SDK::LocalPawn->GetAbsVelocity() * 3.f);
+				Vector_t targetVec = ExtrapolatePosition(pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone), pPawn->GetAbsVelocity());
 				if (iBone == 6) {
 					Vector_t forward = (targetVec - AutoWall::mData.vecStartPos).Normalized();
 
@@ -565,11 +578,11 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	// Find the change in angles
 	
 	//QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
-	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, PredictionSystem->PredStorage.vecEyePos);
+	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, ExtrapolatePosition(PredictionSystem->PredStorage.vecEyePos, SDK::LocalPawn->GetAbsVelocity() * 3.f));
 	//QAngle_t vNewAngles = MATH::CalcAngles(PredictionSystem->PredStorage.vecEyePos, vecBestPosition);
 	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
-	/*L_PRINT(LOG_INFO) << "default:  " << pLocalPawn->GetEyePosition()<<
-		" predicted:  "<< PredictionSystem->PredStorage.vecEyePos;*/
+	//L_PRINT(LOG_INFO) << "default:  " << vecBestPosition <<
+	//	" predicted:  "<< ExtrapolatePosition(vecBestPosition, pTargetPawn->GetAbsVelocity() * 3.f);
 
 	/*if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
 		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);
