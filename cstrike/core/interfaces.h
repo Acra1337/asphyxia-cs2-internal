@@ -19,6 +19,8 @@
 #define MATERIAL_SYSTEM2 CS_XOR("VMaterialSystem2_00")
 #define RESOURCE_SYSTEM CS_XOR("ResourceSystem013")
 #define RESOURCE_HANDLE_UTILS CS_XOR("ResourceHandleUtils001")
+#define PREDICTION CS_XOR("Source2ClientPrediction001")
+
 
 // @source: master/game/shared/shareddefs.h
 #define TICK_INTERVAL 0.015625f
@@ -45,6 +47,7 @@ class CResourceHandleUtils;
 class CPVS;
 class CGameTraceManager;
 class CGameEventManager;
+class CPrediction;
 
 // [d3d] struct
 struct ID3D11Device;
@@ -80,4 +83,6 @@ namespace I
 	inline CPVS* PVS = nullptr;
 	inline CGameTraceManager* GameTraceManager = nullptr;
 	inline CGameEventManager* GameEventManager = nullptr;
+	inline CPrediction* Prediction = nullptr;
+
 }

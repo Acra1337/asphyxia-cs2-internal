@@ -2,11 +2,7 @@
 
 // used: mem_pad
 #include "../../utilities/memory.h"
+#include "sdk/interfaces/igameresourceservice.h" // Include the correct header file
 
 class CGameEntitySystem;
 
-class IGameResourceService {
-public:
-	MEM_PAD(0x58);
-	CGameEntitySystem* pGameEntitySystem;
-};

@@ -128,6 +128,9 @@ bool I::Setup()
 	Client = Capture<ISource2Client>(pClientRegister, SOURCE2_CLIENT);
 	bSuccess &= (Client != nullptr);
 
+	Prediction = Capture<CPrediction>(pClientRegister, PREDICTION);
+	bSuccess &= (Prediction != nullptr);
+
 	const auto pMaterialSystem2Register = GetRegisterList(MATERIAL_SYSTEM2_DLL);
 	if (pMaterialSystem2Register == nullptr)
 		return false;

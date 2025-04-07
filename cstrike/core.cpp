@@ -33,7 +33,7 @@
 
 // used: product version
 #include "sdk/interfaces/iengineclient.h"
-#include "sdk/utilities/eventshandler.hpp"
+#include "sdk/utilities/eventshandler.h"
 
 bool CORE::GetWorkingPath(wchar_t* wszDestination)
 {

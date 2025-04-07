@@ -22,6 +22,7 @@
 #include "../../core/menu.h"
 #include <random>
 #include <cmath>
+#include "../../sdk/utilities/engineprediction.h"
 
 double sqrt3, sqrt5;
 
@@ -153,13 +154,13 @@ QAngle_t GetRecoil(C_CSPlayerPawn* pLocalPawn) {
 }
 
 
-QAngle_t GetAngularDifference(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
+QAngle_t GetAngularDifference(CBaseUserCmdPB* pCmd, Vector_t vecTarget, Vector_t pLocal)
 {
 	// The current position
-	Vector_t vecCurrent = pLocal->GetEyePosition();
+	//Vector_t vecCurrent = pLocal->GetEyePosition();
 
 	// The new angle
-	QAngle_t vNewAngle = (vecTarget - vecCurrent).ToAngles();
+	QAngle_t vNewAngle = (vecTarget - pLocal).ToAngles();
 	vNewAngle.Normalize(); // Normalise it so we don't jitter about
 
 	// Store our current angles
@@ -233,7 +234,7 @@ void AutoStop(CBaseUserCmdPB* pUserCmd, int speed) {
 
 }
 
-float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, C_CSPlayerPawn* pLocal)
+float GetAngularDistance(CBaseUserCmdPB* pCmd, Vector_t vecTarget, Vector_t pLocal)
 {
 	return GetAngularDifference(pCmd, vecTarget, pLocal).Length2D();
 }
@@ -341,8 +342,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	float flSmoothing = 1.0f;
 	if (!IPT::IsKeyDown(C_GET(unsigned int, Vars.nLegitbotActivationKey)) && !C_GET(bool, Vars.bLegitbotAlwaysOn) || MENU::bMainWindowOpened == 1)
 		return;
-	if (!SDK::isAlive)
-		return
+	if (!SDK::LocalPawn->IsAlive())
+		return;
 	// Seed the random number generator
 
 	srand(time(NULL));
@@ -461,7 +462,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		// @note: would recommend checking for nullptrs
 		I::GameTraceManager->TraceShape(&ray, pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6), &filter, &trace);
 		// check if the hit entity is the one we wanted to check and if the trace end point is visible
-		float flCurrentDistance = GetAngularDistance(pUserCmd, vecPos, pLocalPawn);
+		float flCurrentDistance = GetAngularDistance(pUserCmd, vecPos, PredictionSystem->PredStorage.vecEyePos);
 		if (flCurrentDistance > C_GET(float, Vars.flAimRange))// Skip if this move out of aim range
 			continue;
 		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
@@ -562,9 +563,13 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
 
 	// Find the change in angles
-	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
+	
+	//QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
+	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, PredictionSystem->PredStorage.vecEyePos);
+	//QAngle_t vNewAngles = MATH::CalcAngles(PredictionSystem->PredStorage.vecEyePos, vecBestPosition);
 	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
-	//L_PRINT(LOG_INFO) << "dist: " << vNewAngles;
+	/*L_PRINT(LOG_INFO) << "default:  " << pLocalPawn->GetEyePosition()<<
+		" predicted:  "<< PredictionSystem->PredStorage.vecEyePos;*/
 
 	/*if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
 		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);

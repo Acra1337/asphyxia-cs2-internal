@@ -26,6 +26,7 @@
 #include "vdata.h"
 #include <iomanip> // Add this include
 
+#include "datatypes/usercmd.h"
 
 
 
@@ -232,6 +233,9 @@ public:
 	SCHEMA_ADD_FIELD(GameTime_t, GetNextAttack, "CCSPlayer_WeaponServices->m_flNextAttack");
 }; 
 
+// Forward declaration of CPlayer_MovementServices
+class CPlayer_MovementServices;
+
 class C_BasePlayerPawn : public C_BaseModelEntity
 {
 public:
@@ -240,8 +244,7 @@ public:
 	SCHEMA_ADD_FIELD(CCSPlayer_WeaponServices*, GetWeaponServices, "C_BasePlayerPawn->m_pWeaponServices");
 	SCHEMA_ADD_FIELD(CPlayer_ItemServices*, GetItemServices, "C_BasePlayerPawn->m_pItemServices");
 	SCHEMA_ADD_FIELD(CPlayer_CameraServices*, GetCameraServices, "C_BasePlayerPawn->m_pCameraServices");
-	
-
+	SCHEMA_ADD_FIELD(CPlayer_MovementServices*, GetMovementServices, "C_BasePlayerPawn->m_pMovementServices");
 
 	[[nodiscard]] Vector_t GetEyePosition()
 	{
@@ -251,6 +254,7 @@ public:
 		return vecEyePosition;
 	}
 };
+
 
 class CCSPlayer_ViewModelServices;
 
@@ -281,6 +285,15 @@ public:
 	[[nodiscard]] std::uint16_t GetCollisionMask();
 	[[nodiscard]] bool HasArmour(const int hitgroup);
 
+	bool IsAlive() {
+		if (!this)
+			return false;
+
+		if (!GetHealth())
+			return false;
+
+		return GetHealth() > 0;
+	}
 
 	SCHEMA_ADD_FIELD(bool, IsScoped, "C_CSPlayerPawn->m_bIsScoped");
 	SCHEMA_ADD_FIELD(bool, IsDefusing, "C_CSPlayerPawn->m_bIsDefusing");
@@ -293,7 +306,31 @@ public:
 	[[nodiscard]] bool IsPlayer() {
 		return FindClass(CS_XOR("C_CSPlayerPawn"));
 	}
+
+	
 };
+
+class CPlayer_MovementServices
+{
+public:
+	CS_CLASS_NO_INITIALIZER(CPlayer_MovementServices);
+
+	SCHEMA_ADD_OFFSET(float, GetSurfaceFriction, 0x1FC);
+
+	void RunCommand(CUserCmd* pCmd) {
+		MEM::CallVFunc<void, 23U>(this, pCmd); // maybe 25
+	}
+
+	void SetPredictionCommand(CUserCmd* pCmd) {
+		MEM::CallVFunc<void, 34U>(this, pCmd);
+	}
+
+	void ResetPredictionCommand() {
+		MEM::CallVFunc<void, 35U>(this);
+	}
+};
+
+
 
 class CBasePlayerController : public C_BaseModelEntity
 {
@@ -329,6 +366,9 @@ public:
 	SCHEMA_ADD_FIELD(bool, IsPawnAlive, "CCSPlayerController->m_bPawnIsAlive");
 	SCHEMA_ADD_FIELD(CBaseHandle, GetPlayerPawnHandle, "CCSPlayerController->m_hPlayerPawn");
 	C_CSPlayerPawn* GetPlayerPawn();
+
+	SCHEMA_ADD_FIELD_OFFSET(CUserCmd*, GetCurrentCommand, "CBasePlayerController->m_steamID", -0x8);
+
 };
 
 class CBaseAnimGraph : public C_BaseModelEntity

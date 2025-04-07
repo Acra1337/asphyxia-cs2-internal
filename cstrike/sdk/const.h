@@ -112,6 +112,21 @@ enum HitGroup_t : std::uint32_t {
 	HITGROUP_COUNT = 12,
 };
 
+//enum FlowDirection_t : int {
+//	FLOW_OUTGOING = 0,
+//	FLOW_INCOMING = 1,
+//};
+
+
+enum PredictionReason_t
+{
+	ClientCommandTick,
+	DemoPreentity,
+	DemoSimulation,
+	Postnetupdate,
+	ServerStarvedAndAddedUsercmds,
+	ClientFrameSimulate
+};
 
 enum HITBOXES : uint32_t
 {

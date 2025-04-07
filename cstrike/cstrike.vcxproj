@@ -62,7 +62,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <PreprocessorDefinitions>NOMINMAX;_DEBUG;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies;$(SolutionDir)dependencies\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -73,7 +73,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <DisableSpecificWarnings>4267;4244;4172;4067;4146;</DisableSpecificWarnings>
@@ -168,7 +168,9 @@
     <ClInclude Include="features\visuals\World.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
-    <ClInclude Include="sdk\utilities\eventshandler.hpp" />
+    <ClInclude Include="sdk\interfaces\cprediction.hpp" />
+    <ClInclude Include="sdk\utilities\engineprediction.h" />
+    <ClInclude Include="sdk\utilities\eventshandler.h" />
     <ClInclude Include="sdk\utilities\penetration.h" />
     <ClInclude Include="sdigameresourceservice.h" />
     <ClInclude Include="sdk\datatypes\utlstringtoken.h" />
@@ -246,6 +248,7 @@
     <ClCompile Include="features\visuals\World.cpp" />
     <ClCompile Include="sdk\datatypes\usercmd.cpp" />
     <ClCompile Include="sdk\interfaces\cgameeventmanager.cpp" />
+    <ClCompile Include="sdk\utilities\engineprediction.cpp" />
     <ClCompile Include="sdk\utilities\eventshandler.cpp" />
     <ClCompile Include="sdk\utilities\penetration.cpp" />
     <ClCompile Include="sdk\interfaces\cgametracemanager.cpp" />

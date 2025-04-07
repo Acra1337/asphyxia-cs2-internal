@@ -341,10 +341,12 @@
     <ClInclude Include="sdigameresourceservice.h">
       <Filter>sdk\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="sdk\utilities\eventshandler.hpp" />
+    <ClInclude Include="sdk\utilities\eventshandler.h" />
     <ClInclude Include="sdk\interfaces\cgameeventmanager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="features\visuals\World.h" />
+    <ClInclude Include="sdk\utilities\engineprediction.h" />
+    <ClInclude Include="sdk\interfaces\cprediction.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\dependencies\imgui\imgui.cpp">
@@ -475,5 +477,6 @@
     <ClCompile Include="sdk\utilities\eventshandler.cpp" />
     <ClCompile Include="sdk\interfaces\cgameeventmanager.cpp" />
     <ClCompile Include="features\visuals\World.cpp" />
+    <ClCompile Include="sdk\utilities\engineprediction.cpp" />
   </ItemGroup>
 </Project>

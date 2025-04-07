@@ -21,8 +21,10 @@
 
 class CCSPlayerController;
 class C_CSPlayerPawn;
-class CCSWeaponBaseVData;
 class C_CSWeaponBase;
+class C_CSWeaponBaseGun;
+class CCSWeaponBaseVData;
+
 
 class CData {
 public:
@@ -51,8 +53,8 @@ namespace SDK
 	inline CUserCmd* UserCmd = nullptr;
 	inline CBaseUserCmdPB* BaseCmd = nullptr;
 	inline C_CSWeaponBase* WeaponBase = nullptr;
+	inline C_CSWeaponBaseGun* WeaponBaseGun = nullptr;
 	inline CCSWeaponBaseVData* WeaponBaseVData = nullptr;
-	inline bool isAlive = 0;
 	inline CData* pData = new CData();
 
 	inline void(CS_CDECL* fnConColorMsg)(const Color_t&, const char*, ...) = nullptr;

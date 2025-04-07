@@ -66,7 +66,7 @@ void CL_World::exposure(C_PostProcessingVolume* post_processing)
 {
 	float exposure = C_GET(float, Vars.flExposure) * 0.01f;
 
-	if (!SDK::isAlive)
+	if (!SDK::LocalPawn->IsAlive())
 		return;
 
 	if (!post_processing)

@@ -42,6 +42,7 @@
 // used: menu
 #include "menu.h"
 #include "../features/visuals/World.h"
+#include "../sdk/utilities/engineprediction.h"
 
 bool H::Setup()
 {
@@ -248,9 +249,11 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
 		return bResult;
 
+
 	SDK::UserCmd = UserCmd;
 	if (SDK::UserCmd == nullptr)
 		return bResult;
+
 	CBaseUserCmdPB* pBaseCmd = SDK::UserCmd->csgoUserCmd.pBaseCmd;
 	if (pBaseCmd == nullptr)
 		return bResult;
@@ -262,6 +265,7 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	SDK::LocalController = CCSPlayerController::GetLocalPlayerController();
 	if (SDK::LocalController == nullptr)
 		return bResult;
+
 	SDK::LocalPawn = I::GameResourceService->pGameEntitySystem->Get<C_CSPlayerPawn>(SDK::LocalController->GetPawnHandle());
 	if (SDK::LocalPawn == nullptr)
 		return bResult;
@@ -290,20 +294,33 @@ bool CS_FASTCALL H::CreateMove(CCSGOInput* pInput, int nSlot, CUserCmd* UserCmd)
 	if (pAttributeManager == nullptr)
 		return bResult;
 
-	F::OnCreateMove(SDK::UserCmd, pBaseCmd, SDK::LocalController);
+	C_EconItemView* pEconItemView = pAttributeManager->GetItem();
+	if (pEconItemView == nullptr)
+		return bResult;
+
+
+	PredictionSystem->Update();
+	PredictionSystem->Begin();
+	{
+		F::OnCreateMove(SDK::UserCmd, pBaseCmd, SDK::LocalController);
+	}
+	PredictionSystem->End();
 
 	SDK::UserCmd = UserCmd;
 	SDK::BaseCmd = pBaseCmd;
 	SDK::LocalController = pLocalController;
 	SDK::LocalPawn = pLocalPawn;
-	SDK::WeaponBaseVData = pWeaponBaseVData;
 	SDK::WeaponBase = pWeaponBase;
-	SDK::isAlive = SDK::LocalPawn->GetHealth() > 0 && SDK::LocalPawn->GetLifeState() != ELifeState::LIFE_DEAD;
-
-	SDK::pData->ServerTime = TICKS_TO_TIME(pLocalController->GetTickBase());
+	SDK::WeaponBaseGun = pWeaponBaseGun;
+	SDK::WeaponBaseVData = pWeaponBaseVData;
 
 	SDK::pData->ViewAngle = pViewAngles->angValue;
 	SDK::pData->WeaponType = pWeaponBaseVData->GetWeaponType();
+	SDK::pData->ItemDefinitionIndex = pEconItemView->GetItemDefinitionIndex();
+	SDK::pData->ServerTime = TICKS_TO_TIME(pLocalController->GetTickBase());
+	SDK::pData->EyePosition = pLocalPawn->GetEyePosition();
+
+	SDK::pData->IsAlive = pLocalPawn->IsAlive() && pLocalPawn->GetLifeState() != ELifeState::LIFE_DEAD;
 	SDK::pData->CanShoot = pLocalPawn->CanAttack(SDK::pData->ServerTime) && pWeaponBaseGun->CanPrimaryAttack(SDK::pData->WeaponType, SDK::pData->ServerTime);
 	SDK::pData->CanScope = !pLocalPawn->IsScoped() && !(UserCmd->nButtons.nValue & IN_ZOOM) && !SDK::pData->NoSpread && (pLocalPawn->GetFlags() & FL_ONGROUND) && (SDK::pData->WeaponType == WEAPONTYPE_SNIPER_RIFLE);
 
@@ -365,8 +382,8 @@ void CS_FASTCALL H::OverrideView(void* pClientModeCSNormal, CViewSetup* pSetup)
 	if (!I::Engine->IsConnected() || !I::Engine->IsInGame())
 		return oOverrideView(pClientModeCSNormal, pSetup);
 
-	if (!SDK::isAlive)
-		return oOverrideView(pClientModeCSNormal, pSetup);
+	if (!SDK::LocalPawn->IsAlive())
+		return;
 
 	if (!SDK::LocalController || !SDK::LocalPawn)
 		return oOverrideView(pClientModeCSNormal, pSetup);
