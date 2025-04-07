@@ -395,8 +395,9 @@ void T::LegitBot()
 			if (C_GET(bool, Vars.bAutoFire))
 			{
 				ImGui::SliderFloat(CS_XOR("HitChance"), &C_GET(float, Vars.fHitChance), 1.f, 100.f);
-				ImGui::Checkbox(CS_XOR("Randomize aim"), &C_GET(bool, Vars.bHumanize));
+				ImGui::Checkbox(CS_XOR("Humanizer"), &C_GET(bool, Vars.bHumanize));
 			}
+			ImGui::Checkbox(CS_XOR("AimLock Assist"), &C_GET(bool, Vars.bAimLock));
 			ImGui::Checkbox(CS_XOR("AutoStop"), &C_GET(bool, Vars.bAutoStop));
 			ImGui::Checkbox(CS_XOR("AutoWall"), &C_GET(bool, Vars.bAutoWall));
 			if (C_GET(bool, Vars.bAutoWall)) {
@@ -497,8 +498,8 @@ void T::Visuals()
 				ImGui::ColorEdit4(CS_XOR("Light Color"),  &C_GET(Color_t, Vars.colLightning), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
 				ImGui::ColorEdit4(CS_XOR("Sky Color"),  &C_GET(Color_t, Vars.colSky), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
 				ImGui::ColorEdit4(CS_XOR("Sun Color"),  &C_GET(Color_t, Vars.colClouds), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf);
-				ImGui::SliderFloat(CS_XOR("Intensive"),  &C_GET(float, Vars.flLightingIntensity), 0, 10);
-				ImGui::SliderFloat(CS_XOR("Exposure"), &C_GET(float, Vars.flExposure), 0, 100);
+				//ImGui::SliderFloat(CS_XOR("Intensive"),  &C_GET(float, Vars.flLightingIntensity), 0, 10);
+				//ImGui::SliderFloat(CS_XOR("Exposure"), &C_GET(float, Vars.flExposure), 0, 100);
 			}
 
 

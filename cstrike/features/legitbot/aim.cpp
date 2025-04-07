@@ -368,6 +368,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	CCSPlayerController* pTarget = nullptr;
 	// Cache'd position
 	Vector_t vecBestPosition = Vector_t();
+	Vector_t vecLockPosition = Vector_t();
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<float> dis(-0.50f, 0.50f);
@@ -383,6 +384,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	bool isBaim = false;
 	std::vector<std::uint32_t> cHitboxes ={ HEAD,STOMACH, CENTER }; 
 	int final_bone = 0;
+	bool aimLock = false;
 
 	if (SDK::pData->WeaponType == WEAPONTYPE_KNIFE)
 		return;
@@ -457,6 +459,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		if (pBoneCache == nullptr)
 			continue;
 
+
 		//AutoRevolver(pUserCmd);
 
 		const int iBone = 6; // You may wish to change this dynamically but for now let's target the head.
@@ -481,6 +484,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		//if (pTarget && flCurrentDistance > flDistance) // Override if this is the first move or if it is a better move
 		//	continue;
 		//Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
+		vecLockPosition = ExtrapolatePosition(pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(4), pPawn->GetAbsVelocity());
+
 		float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(6));
 		float VarminDamage = C_GET(float, Vars.flMinDamage);
 		if (C_GET(bool, Vars.bAutoWall)) {
@@ -488,7 +493,7 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 			for (auto& iBone : cHitboxes) {
 				AutoWall::mData.iHitGroup = iBone;
 				AutoWall::mData.pTargetPawn = pPawn;
-				AutoWall::mData.vecStartPos = ExtrapolatePosition(PredictionSystem->PredStorage.vecEyePos, SDK::LocalPawn->GetAbsVelocity() * 3.f);
+				AutoWall::mData.vecStartPos = ExtrapolatePosition(PredictionSystem->PredStorage.vecEyePos, SDK::LocalPawn->GetAbsVelocity() * 2.f);
 				Vector_t targetVec = ExtrapolatePosition(pPawn->GetGameSceneNode()->GetSkeletonInstance()->pBoneCache->GetOrigin(iBone), pPawn->GetAbsVelocity());
 				if (iBone == 6) {
 					Vector_t forward = (targetVec - AutoWall::mData.vecStartPos).Normalized();
@@ -509,29 +514,25 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 
 				if (!AutoWall::FireBullet(AutoWall::mData))
 					continue;
+				aimLock = true;
 
-				int currentBone = iBone;
 				float currentDamage = static_cast<float>(AutoWall::mData.flDamage) - 5;
 
-				//L_PRINT(LOG_INFO) << "bone: " << currentBone << " dmg: " << currentDamage << " hp: " << flHealthFactor;
+				//L_PRINT(LOG_INFO) << "dmg: " << currentDamage;
 				bool isTargetEntity = (trace.m_pHitEntity == pPawn);
-				bool isDamageSufficient = (currentDamage >= VarminDamage && currentDamage >= flHealthFactor || currentDamage > flBestDamage);
-
+				bool isDamageSufficient = ((currentDamage >= VarminDamage || currentDamage >= flHealthFactor) && currentDamage > flBestDamage);
 				if (!(isTargetEntity || isDamageSufficient))
 					continue;
 
 				if (isDamageSufficient) {
-					//vecPos = pBoneCache->GetOrigin(currentBone);
+					//L_PRINT(LOG_INFO) << "";
 					flBestDamage = currentDamage;
-					
-					flDistance = flCurrentDistance;
 					vecBestPosition = targetVec;
-					final_bone = iBone;
 					pTarget = pPlayer;
 					pTargetPawn = pPawn;
-					isPawned = true;
+
 				}
-				else if(!isDamageSufficient && currentDamage >= flBestDamage){
+				else if(!isDamageSufficient && currentDamage >= flHealthFactor){
 					vecBestPosition = targetVec;
 				}
 				
@@ -550,23 +551,50 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		else {
 			isPenitration = true;
 		}
+
 		
+		
+	}
+
+	
+
+	//L_PRINT(LOG_INFO) << " isPenitration: "<< isPenitration;
+
+
+	if (pTarget == nullptr && isPenitration && C_GET(bool, Vars.bAimLock)) {
+		//L_PRINT(LOG_INFO) << " enter";
+		if(vecLockPosition == Vector_t())
+			return;
+		//L_PRINT(LOG_INFO) << " pass: "<< vecLockPosition;
+		QAngle_t* pViewAngles1 = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
+		QAngle_t vNewAngles1 = GetAngularDifference(pUserCmd, vecLockPosition, SDK::LocalPawn->GetEyePosition());
+		float distance_vec1 = GetDistance(pLocalPawn->GetEyePosition(), vecLockPosition);
+
+		if ((abs(static_cast<float>(vNewAngles1.x)) > 20.f * (90.f / distance_vec1) || abs(static_cast<float>(vNewAngles1.y)) > 20.f * (90.f / distance_vec1))) {
+
+			double G_0 = 18;
+			double W_0 = 14;
+			double M_0 = 6;
+			double D_0 = 0;
+			TwoFloats result_aim1 = wind_mouse(0, 0, static_cast<float>((vNewAngles1.x)),
+				static_cast<float>((vNewAngles1.y)),
+				G_0, W_0, M_0, D_0);
+
+			pViewAngles1->x += result_aim1.first / 10; 
+			pViewAngles1->y += result_aim1.second / 10;
+		}
+		pViewAngles1->Normalize();
 
 	}
+
 	// Check if a target was found
 	if (pTarget == nullptr)
 		return;
 
 
-	/*else if (Damage >= VarminDamage/2) {
-		if (C_GET(bool, Vars.bAutoStop)) {
-			AutoStop(pUserCmd, 0);
-		}
-	}*/
 	Vector_t velocity = SDK::LocalPawn->GetVecVelocity();
 	float speed = GetSpeed(velocity);
-	/*if (speed > 180)
-		return;*/
+
 	// Point at them
 	float VarminDamage = C_GET(float, Vars.flMinDamage);
 	float hit_chnce = C_GET(float, Vars.fHitChance);
@@ -578,33 +606,19 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	QAngle_t* pViewAngles = &(pUserCmd->pViewAngles->angValue); // Just for readability sake!
 
 	// Find the change in angles
-	
-	//QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, pLocalPawn);
+
 	QAngle_t vNewAngles = GetAngularDifference(pUserCmd, vecBestPosition, ExtrapolatePosition(PredictionSystem->PredStorage.vecEyePos, SDK::LocalPawn->GetAbsVelocity() * 3.f));
-	//QAngle_t vNewAngles = MATH::CalcAngles(PredictionSystem->PredStorage.vecEyePos, vecBestPosition);
 	float distance_vec = GetDistance(pLocalPawn->GetEyePosition(), vecBestPosition);
+
 	//L_PRINT(LOG_INFO) << "default:  " << vecBestPosition <<
 	//	" predicted:  "<< ExtrapolatePosition(vecBestPosition, pTargetPawn->GetAbsVelocity() * 3.f);
 
-	/*if (C_GET(bool, Vars.bAutoFire) && final_bone == 6 || C_GET(float, Vars.flSmoothing)<3) {
-		vNewAngles.x = vNewAngles.x - 2.f* (60.f / distance_vec);
-	}
-	else {
-		if (SDK::pData->WeaponType != WEAPONTYPE_SNIPER_RIFLE && SDK::pData->WeaponType != WEAPONTYPE_SHOTGUN) {
-			vNewAngles.x = vNewAngles.x + 2.f * (60.f / distance_vec);
-		}
-		else {
-			vNewAngles.x = vNewAngles.x + Vars.flSmoothing / 20;
-		}
-	}*/
 	
 	//L_PRINT(LOG_INFO) << "hc: " << ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn);
 	CCSPlayer_WeaponServices* WeaponServices = SDK::LocalPawn->GetWeaponServices();
 	if (WeaponServices == nullptr)
 		return;
 
-	/*if (ÑalculateHitÑhance(vNewAngles, pPawn, pLocalPawn) < C_GET(float, Vars.fHitChance))
-		return;*/
 
 	float hitch_val = CalculateAutisticHitchance();
 	
@@ -612,16 +626,8 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 	if (abs(static_cast<float>(vNewAngles.x)) < 3.f * (90.f / distance_vec) && abs(static_cast<float>(vNewAngles.y)) < 3.f * (90.f / distance_vec)) {
 		if (hitch_val >= hit_chnce) {
 			if (C_GET(bool, Vars.bAutoFire)) {
-				if (ready >= 1) {		//Без комментариев, я рот ебал этой залупы, ну оно блять 8 из 10 срёт в никуда на преф, позже как-то собраться и перенести предикт надо.
-					ActionFire();		/*TODO*/
-					myTimer.Trigger();
-					ready = -1;
-				}
-				ready++;
-				//L_PRINT(LOG_INFO) << "hitch_val: " << hitch_val;
-			}
-			else {
-				ready = 0;
+				ActionFire();		
+				myTimer.Trigger();
 			}
 		}
 	}
@@ -630,12 +636,12 @@ void F::LEGITBOT::AIM::AimAssist(CBaseUserCmdPB* pUserCmd, C_CSPlayerPawn* pLoca
 		flSmoothing = 1.0f;
 		//L_PRINT(LOG_INFO) << "smooth 0";
 	}
-	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration && flSmoothing>1.5f) {
-		flSmoothing = 1.5f;
+	else if (C_GET(bool, Vars.bAutoWallFast) && isPenitration) {
+		flSmoothing = 1.0f;
 	}
-	else{
+	else{ 
 		flSmoothing = C_GET(float, Vars.flSmoothing);
-	}
+		}
 
 	pUserCmd->pViewAngles->SetBits(EBaseCmdBits::BASE_BITS_VIEWANGLES);
 

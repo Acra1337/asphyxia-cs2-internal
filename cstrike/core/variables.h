@@ -146,6 +146,7 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bLegitbotAlwaysOn, true);
 	C_ADD_VARIABLE(unsigned int, nLegitbotActivationKey, VK_HOME);
 	C_ADD_VARIABLE(bool, bHumanize, true);
+	C_ADD_VARIABLE(bool, bAimLock, true);
 	C_ADD_VARIABLE(bool, bAutoFire, true);
 	C_ADD_VARIABLE(bool, bAutoStop, true);
 	C_ADD_VARIABLE(bool, bAutoWall, true);
